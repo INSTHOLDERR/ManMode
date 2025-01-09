@@ -37,7 +37,7 @@ const overlay = document.querySelector('[data-overlay]');
 
 for (let i = 0; i < mobileMenuOpenBtn.length; i++) {
 
-  // mobile menu function
+
   const mobileMenuCloseFunc = function () {
     mobileMenu[i].classList.remove('active');
     overlay.classList.remove('active');
