@@ -85,7 +85,7 @@ router.get('/userprofile', isNotLogin, (req, res) => {
 });
 
 router.get('/userordering', isNotLogin, (req, res) => {
-    res.render('user/profile/orders'); 
+    res.render('user/orders'); 
 });
 
 router.get('/getuserprofile',userProfile)
