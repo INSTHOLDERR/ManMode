@@ -158,6 +158,9 @@
             const response = await fetch("/userorderhistorys");
             const data = await response.json();
 
+            console.log("data",data);
+            
+
             if (!response.ok || !data.success) {
               ordersTable.innerHTML = `<tr><td colspan="6" class="text-center">No orders found.</td></tr>`;
               return;
