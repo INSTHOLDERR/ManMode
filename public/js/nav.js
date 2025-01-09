@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="dropdown-menu" id="userDropdown" style="display: none; top: 110px;">
           <a href="/userprofile">Profile</a>
           <a href="/useraddress">Address</a>
-          <a href="/userordering">Orders</a>
+          <a href="/userorders">Orders</a>
           <a href="/userwallet">Wallet</a>
           <a class="user-logout" href="/logout">Logout</a>
         </div>
