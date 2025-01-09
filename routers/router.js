@@ -84,6 +84,10 @@ router.get('/userprofile', isNotLogin, (req, res) => {
     res.render('user/profile/userProfile'); 
 });
 
+router.get('/userordering', isNotLogin, (req, res) => {
+    res.render('user/profile/UserOrder'); 
+});
+
 router.get('/getuserprofile',userProfile)
 
 
@@ -187,9 +191,7 @@ router.get('/back', (req, res) => {
 router.get('/checkoutdetails',checkOutDetails)
 router.post('/placeorder', placeOrder);
 
-router.get('/userordering', isNotLogin, (req, res) => {
-    res.render('user/profile/userOrders'); 
-});
+
 router.get('/orderhistory', isNotLogin, (req, res) => {
     res.render('user/profile/orderHistory'); 
 });
