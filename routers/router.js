@@ -186,6 +186,7 @@ router.get('/back', (req, res) => {
 
 router.get('/checkoutdetails',checkOutDetails)
 router.post('/placeorder', placeOrder);
+
 router.get('/userorders', isNotLogin, (req, res) => {
     res.render('user/profile/userOrders'); 
 });

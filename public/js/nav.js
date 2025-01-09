@@ -1,56 +1,50 @@
 
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const iconsContainer = document.getElementById("iconsContainer");
+  try {
+    const response = await fetch("/dashboard");
+    const data = await response.json();
+    const iconsContainer = document.getElementById("iconsContainer");
 
-  const loadDashboardData = async () => {
-    try {
-      const response = await fetch("/dashboard");
-      const data = await response.json();
+    if (response.ok) {
+      iconsContainer.innerHTML = `
 
-      if (response.ok) {
-        iconsContainer.innerHTML = `
-          <div class="icon user-icon" id="userIcon">
-            <img src="${data.userImage}" alt="User Icon" style="width: 30px; height: 30px; border-radius: 50%;">
-          </div>
-          <div class="dropdown-menu" id="userDropdown" style="display: none; top: 110px;">
-            <a href="/userprofile">Profile</a>
-            <a href="/useraddress">Address</a>
-            <a href="/userorders">Orders</a>
-            <a href="/userwallet">Wallet</a>
-            <a class="user-logout" href="/logout">Logout</a>
-          </div>
-          <div class="icon wishlist-icon" onclick="location.href='/userwishlist'">
-            ❤️<span class="badge" id="wishlistCount">${data.wishlistCount}</span>
-          </div>
-          <div class="icon cart-icon" onclick="location.href='/usercart'">
-            🛒<span class="badge" id="cartCount">${data.cartCount}</span>
-          </div>
-        `;
+        <div class="icon user-icon" id="userIcon">
+          <img src="${data.userImage}" alt="User Icon" style="width: 30px; height: 30px; border-radius: 50%;">
+        </div>
+        <div class="dropdown-menu" id="userDropdown" style="display: none; top: 110px;">
+          <a href="/userprofile">Profile</a>
+          <a href="/useraddress">Address</a>
+          <a href="/userorders">Orders</a>
+          <a href="/userwallet">Wallet</a>
+          <a class="user-logout" href="/logout">Logout</a>
+        </div>
+        <div class="icon wishlist-icon" onclick="location.href='/userwishlist'">
+          ❤️<span class="badge" id="wishlistCount">${data.wishlistCount}</span>
+        </div>
+        <div class="icon cart-icon" onclick="location.href='/usercart'">
+          🛒<span class="badge" id="cartCount">${data.cartCount}</span>
+        </div>
+        
+        
+      `;
 
-        initializeDropdown();
-      } else {
-        iconsContainer.innerHTML = `
-          <a class="user-logout" href="/register">Register</a>
-          <a class="user-logout" href="/login">Login</a>
-        `;
-      }
-    } catch (error) {
-      console.error("Error loading user dashboard data:", error);
+
+      initializeDropdown();
+    } else {
       iconsContainer.innerHTML = `
         <a class="user-logout" href="/register">Register</a>
         <a class="user-logout" href="/login">Login</a>
       `;
     }
-  };
-
-
-  await loadDashboardData();
-
- 
-  setInterval(loadDashboardData, 100);
+  } catch (error) {
+    console.error("Error loading user dashboard data:", error);
+    iconsContainer.innerHTML = `
+      <a class="user-logout" href="/register">Register</a>
+      <a class="user-logout" href="/login">Login</a>
+    `;
+  }
 });
-
 
 
 document.addEventListener("DOMContentLoaded", () => {
