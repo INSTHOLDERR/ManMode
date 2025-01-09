@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>ManMode</title>
+  <link rel="stylesheet" href="./css1/home.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  
+  <style>
+    .profile-section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin: 20px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .profile-image img,
+    .edit-image img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .profile-info p,
+    .edit-fields label {
+      margin: 10px 0;
+    }
+
+    .edit-fields input {
+      display: block;
+      margin-bottom: 15px;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #editDetailsBtn, #saveDetailsBtn, #cancelEditBtn {
+      margin-top: 10px;
+    }
+
+    .user-icon, .wishlist-icon, .cart-icon {
+      cursor: pointer;
+    }
+    
+    .crop-container {
+      display: none;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .message {
+      font-size: 18px;
+      color: #555;
+    }
+    body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        #profileContainer {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .profile-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-image {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-image img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .profile-info {
+            margin: 1.5rem 0;
+        }
+
+        .profile-info p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .edit-image {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .edit-fields {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .edit-fields label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .edit-fields input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        #editDetailsBtn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #saveDetailsBtn {
+            background-color: #28a745;
+            color: white;
+            margin-right: 10px;
+        }
+
+        #cancelEditBtn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        #cropImageBtn {
+            background-color: #17a2b8;
+            color: white;
+            margin-top: 10px;
+        }
+
+        /* Coupons Table Styles */
+        .coupons-section {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .coupons-section h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        #coupons-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #coupons-table th,
+        #coupons-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        #coupons-table thead {
+            background-color: #f8f9fa;
+        }
+
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            background-color: #d4edda;
+            color: #155724;
+            display: none;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-used {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-expired {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .coupons-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 20px;
+        }
+
+        .coupons-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .coupons-table {
+            width: 100%;
+            margin-top: 1rem;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .coupons-table th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .coupons-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .coupon-code {
+            font-weight: 500;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .coupon-type {
+            color: #6c757d;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .status-active {
+            background-color: #e3fcef;
+            color: #0f766e;
+        }
+
+        .status-used {
+            background-color: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-expired {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background-color: #d4edda;
+            color: #155724;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .coupons-section {
+                padding: 1rem;
+            }
+
+            .coupons-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .status-badge {
+                min-width: 80px;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Table wrapper for scrolling */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 10px 0;
+  border: 1px solid #ddd; /* Optional: For a boundary effect */
+  border-radius: 4px; /* Optional: Smooth corners */
+}
+
+/* Style the table */
+#coupons-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Ensure the table doesn't shrink too much */
+}
+
+#coupons-table th,
+#coupons-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+
+@media (max-width: 660px) {
+  .table-wrapper {
+    overflow-x: scroll;
+  }
+
+  #coupons-table {
+    width: auto; 
+  }
+}
+
+        
+  </style>
+</head>
+
+<body>
+  <%- include('../common-ele/nav') %>
+
+  <section id="profileContainer">
+    <div id="viewDetails" class="profile-section">
+      <div class="profile-image">
+        <img src="/path/to/default/image.jpg" alt="User Image" id="userImage">
+      </div>
+      <div class="profile-info">
+        <p><strong>Name:</strong> <span id="viewName"></span></p>
+        <p><strong>Email:</strong> <span id="viewEmail"></span></p>
+        <p><strong>Phone:</strong> <span id="viewPhone"></span></p>
+      </div>
+      <button id="editDetailsBtn">Edit Details</button>
+    </div>
+
+    <div id="editDetails" class="profile-section" style="display: none;">
+      <form id="editProfileForm">
+        <div class="edit-image">
+          <img style="height: 200px; width: 200px; background-color: aqua;" src="/path/to/default/image.jpg" alt="User Image" id="editImagePreview">
+          <input type="file" id="editImageInput">
+          <button type="button" id="cropImageBtn">Crop Image</button>
+        </div>
+        <div class="edit-fields">
+          <label for="editName">Name:</label>          <input type="text" id="editName" value="John Doe">
+          
+          <label for="editPhone">Phone:</label>
+          <input type="text" id="editPhone" value="+1234567890">
+          
+          <label for="editPassword">New Password:</label>
+          <input type="password" id="editPassword">
+          
+          <label for="confirmPassword">Confirm Password:</label>
+          <input type="password" id="confirmPassword">
+        </div>
+        <button type="button" id="saveDetailsBtn">Save Details</button>
+        <button type="button" id="cancelEditBtn">Cancel</button>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <h2>User Applied Coupons</h2>
+  
+    <div id="message" class="message">No coupons applied yet.</div>
+  
+    <!-- Add a wrapper div for the table -->
+    <div class="table-wrapper">
+      <table id="coupons-table">
+        <thead>
+          <tr>
+            <th>Coupon Code</th>
+            <th>Type</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+      </table>
+    </div>
+  </section>
+  
+  <%- include('../common-ele/footer') %>
+
+<script>
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const userIcon = document.getElementById('userIcon');
+  const dropdown = document.getElementById('userDropdown');
+
+  userIcon.addEventListener('click', () => {
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!userIcon.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.style.display = 'none';
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  
+  fetch('/getuserprofile')  
+    .then(response => response.json())
+    .then(data => {
+      console.log("data",data);
+      console.log(data.image);
+      
+
+      const imagePath = data.image
+  ? data.image.replace(/\\/g, '/').replace('uploads', '')
+  : 'path/to/default/image.jpg';
+const fullImageUrl = `http://manmode.uno/uploaded-images/${imagePath}`;
+
+
+
+
+
+
+console.log(fullImageUrl.toString());
+      
+      document.getElementById('viewName').innerText = data.name;
+      document.getElementById('viewEmail').innerText = data.email;
+      document.getElementById('viewPhone').innerText = data.number || "";
+      document.getElementById('userImage').src = fullImageUrl;
+      
+
+      document.getElementById('editName').value = data.name;
+      document.getElementById('editPhone').value = data.number;
+      document.getElementById('editImagePreview').src = fullImageUrl;
+    })
+    .catch(error => {
+      console.error('Error fetching user profile:', error);
+      alert('Failed to load user profile.');
+    });
+
+  const editDetailsBtn = document.getElementById('editDetailsBtn');
+  const saveDetailsBtn = document.getElementById('saveDetailsBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const viewDetails = document.getElementById('viewDetails');
+  const editDetails = document.getElementById('editDetails');
+
+  editDetailsBtn.addEventListener('click', () => {
+    viewDetails.style.display = 'none';
+    editDetails.style.display = 'block';
+  });
+
+  cancelEditBtn.addEventListener('click', () => {
+    viewDetails.style.display = 'block';
+    editDetails.style.display = 'none';
+  });
+
+
+  const editImageInput = document.getElementById('editImageInput');
+  const editImagePreview = document.getElementById('editImagePreview');
+  const cropImageBtn = document.getElementById('cropImageBtn');
+  let cropper;
+
+  editImageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        editImagePreview.src = event.target.result;
+
+        if (cropper) {
+          cropper.destroy();
+        }
+
+        cropper = new Cropper(editImagePreview, {
+          aspectRatio: 1,
+          viewMode: 2,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  let croppedFile; 
+
+cropImageBtn.addEventListener('click', () => {
+  if (cropper) {
+    const canvas = cropper.getCroppedCanvas();
+    canvas.toBlob((blob) => {
+      croppedFile = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+      const imageUrl = URL.createObjectURL(croppedFile);
+      editImagePreview.src = imageUrl;
+      cropper.destroy();
+      cropper = null;
+    }, "image/jpeg");
+  }
+});
+
+  saveDetailsBtn.addEventListener('click', () => {
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    const password = document.getElementById('editPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const image = editImagePreview.src;
+
+    if (password && password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+
+    const formData = new FormData();
+    formData.append('name', name);
+   
+    formData.append('phone', phone);
+    formData.append('password', password);
+    if (croppedFile) {
+  formData.append('image', croppedFile);
+}
+
+console.log("data",formData);
+
+   
+    fetch('/saveuserprofile', {
+      method: 'PUT',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('viewName').innerText = name;
+        document.getElementById('viewPhone').innerText = phone;
+        document.getElementById('userImage').src = image;
+
+        alert("Profile updated successfully!");
+      } else {
+        alert("Failed to update profile.");
+      }
+    })
+    .catch(error => {
+      console.error('Error saving profile:', error);
+      alert("An error occurred while saving your profile.");
+    });
+
+    viewDetails.style.display = 'block';
+    editDetails.style.display = 'none';
+  });
+});
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const fetchCoupons = async () => {
+    try {
+      const response = await fetch("/userusedcoupons"); 
+      const data = await response.json();
+      console.log(data);
+
+      const messageElement = document.getElementById("message");
+      const couponsTable = document.getElementById("coupons-table");
+
+      if (data.message) {
+        
+        messageElement.textContent = data.message;
+        couponsTable.style.display = "none";
+      } else {
+        const coupons = data.coupons;
+
+        if (coupons.length === 0) {
+         
+          messageElement.textContent = "You haven't used any coupons.";
+          couponsTable.style.display = "none";
+        } else {
+          
+          const tbody = couponsTable.querySelector("tbody");
+          tbody.innerHTML = "";  
+
+          coupons.forEach(coupon => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${coupon.couponCode}</td>
+              <td>${coupon.type}%</td>
+              <td>used</td>
+            `;
+            tbody.appendChild(row);
+          });
+
+          messageElement.textContent = "";  
+          couponsTable.style.display = "table";
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+      document.getElementById("message").textContent = "Failed to fetch coupons.";
+    }
+  };
+
+  fetchCoupons();  
+});
+
+</script>
+  
+
+<script src="/js/nav.js"></script>
+
+
+</body> 
+
+</html>

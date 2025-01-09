@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/admin/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        button {
+            background-color: #0dde14;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        button:hover {
+            background-color: #1cc705;
+        }
+
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        form label {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            /* display: block; */
+        }
+
+        form input,
+        form select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        form button {
+            width: 100%;
+            background-color: #28a745;
+            font-size: 1rem;
+        }
+
+        form button:hover {
+            background-color: #218838;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            padding: 10px 40px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            color: rgb(0, 0, 0);
+        }
+
+        table td {
+            background-color: #f9f9f9;
+        }
+
+        table button {
+            background-color: #ffc107;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        table button:hover {
+            background-color: #e0a800;
+        }
+
+        table button:first-child {
+            background-color: #dc3545;
+        }
+
+        table button:first-child:hover {
+            background-color: #c82333;
+        }
+
+
+        #editOfferFormContainer {
+            display: none;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #editOfferFormContainer h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        #editOfferFormContainer form button {
+            background-color: #007bff;
+        }
+
+        #editOfferFormContainer form button:hover {
+            background-color: #0056b3;
+        }
+
+
+        #brandSelection,
+        #categorySelection {
+            display: none;
+        }
+
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            button {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            form input,
+            form select {
+                font-size: 0.9rem;
+            }
+
+            table td,
+            table th {
+                padding: 8px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <%- include('./commonpages/sidebar') %>
+
+
+    <div class="main-content">
+        <div class="container">
+            <h1>Offer Management</h1>
+
+            <button id="displayofferform">Add Offer</button>
+
+
+            <form id="offerForm" style="display: none;">
+                <label for="offerName">Offer Name:</label>
+                <input type="text" id="offerName" name="offerName" required>
+                <label for="discountType">Discount Type:</label>
+                <select id="discountType" name="discountType" required>
+                    <option value="">Select Type</option>
+                    <option value="flat">Flat</option>
+                    <option value="percentage">Percentage</option>
+                </select>
+
+                <label for="discount">Discount :</label>
+                <input type="number" id="discount" name="discount" required>
+
+                <label for="offerType">Offer Type:</label>
+                <select id="offerType" name="offerType" required>
+                    <option value="">Select Type</option>
+                    <option value="brand">Brand</option>
+                    <option value="category">Category</option>
+                </select>
+
+                <div id="brandSelection" style="display: none;">
+                    <label for="brandId">Select Brand:</label>
+                    <select id="brandId" name="brandId"></select>
+                </div>
+
+                <div id="categorySelection" style="display: none;">
+                    <label for="categoryId">Select Category:</label>
+                    <select id="categoryId" name="categoryId"></select>
+                </div>
+
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate">
+
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate">
+
+                <button type="submit">Add Offer</button>
+            </form>
+
+
+            <div id="editOfferFormContainer" style="display: none;">
+                <h2>Edit Offer</h2>
+                <form id="editOfferForm">
+                    <label for="editOfferName">Offer Name:</label>
+                    <input type="text" id="editOfferName" name="editOfferName" required>
+                    <label for="editDiscountType">Discount Type:</label>
+                    <select id="editDiscountType" name="editDiscountType" required>
+                        <option value="flat">Flat</option>
+                        <option value="percentage">Percentage</option>
+                    </select>
+
+
+                    <label for="editDiscount">Discount:</label>
+                    <input type="number" id="editDiscount" name="editDiscount" required>
+
+                    <label for="editOfferType">Offer Type:</label>
+                    <select id="editOfferType" name="editOfferType" required>
+                        <option value="brand">Brand</option>
+                        <option value="category">Category</option>
+                    </select>
+
+                    <label for="editStartDate">Start Date:</label>
+                    <input type="date" id="editStartDate" name="editStartDate">
+
+                    <label for="editEndDate">End Date:</label>
+                    <input type="date" id="editEndDate" name="editEndDate">
+
+                    <button type="submit">Update Offer</button>
+                    <button type="button" onclick="cancelEdit()">Cancel</button>
+                </form>
+            </div>
+
+
+            <table id="offerTable">
+                <thead>
+                    <tr>
+                        <th>Offer Name</th>
+                        <th> Discount Type</th>
+
+                        <th>Discount</th>
+                        <th>Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+        
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const offerType = document.getElementById('offerType');
+                const brandSelection = document.getElementById('brandSelection');
+                const categorySelection = document.getElementById('categorySelection');
+                const brandId = document.getElementById('brandId');
+                const categoryId = document.getElementById('categoryId');
+                const discountInput = document.getElementById('discount');
+
+
+                document.getElementById('displayofferform').addEventListener('click', () => {
+                    document.getElementById('offerForm').style.display = "block";
+                    document.getElementById('offerTable').style.display = "none";
+
+                })
+
+                offerType.addEventListener('change', () => {
+                    if (offerType.value === 'brand') {
+                        brandSelection.style.display = 'block';
+                        categorySelection.style.display = 'none';
+                        fetchOptions('/admin/getofferbrands', brandId);
+                    } else if (offerType.value === 'category') {
+                        brandSelection.style.display = 'none';
+                        categorySelection.style.display = 'block';
+                        fetchOptions('/admin/getoffercategories', categoryId);
+                    } else {
+                        brandSelection.style.display = 'none';
+                        categorySelection.style.display = 'none';
+                    }
+                });
+
+
+                discountInput.addEventListener('input', () => {
+                    const discountValue = parseInt(discountInput.value, 10);
+                    if (offerType.value === 'percentage' && discountValue > 100) {
+                        discountInput.value = 100;
+                        Swal.fire('Warning', 'Percentage discount cannot exceed 100%', 'warning');
+                    }
+                });
+
+
+                function fetchOptions(url, selectElement) {
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            selectElement.innerHTML = '<option value="">Select</option>';
+                            data.forEach(item => {
+                                const option = document.createElement('option');
+                                option.value = item._id;
+                                option.textContent = item.name;
+                                selectElement.appendChild(option);
+                            });
+                        });
+                }
+
+                const offerForm = document.getElementById('offerForm');
+                offerForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const formData = new FormData(offerForm);
+                    const payload = Object.fromEntries(formData);
+
+                    if (offerType.value === 'percentage' && payload.discount > 100) {
+                        Swal.fire('Error', 'Discount percentage cannot exceed 100%', 'error');
+                        return;
+                    }
+
+                    fetch('/admin/addoffers', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(response => response.json())
+                        .then(() => {
+                            Swal.fire('Success', 'Offer added successfully!', 'success');
+                            loadOffers();
+                            document.getElementById('offerForm').style.display = "none";
+                            document.getElementById('offerTable').style.display = "block";
+                        });
+                });
+
+
+                function loadOffers() {
+                    fetch('/admin/getoffer')
+                        .then(response => response.json())
+                        .then(data => {
+                            const tbody = document.querySelector('#offerTable tbody');
+                            tbody.innerHTML = '';
+                            data.forEach(offer => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                        <td>${offer.offerName}</td>
+                         <td>${offer.discountType}</td>
+                        <td>${offer.discount}${offer.offerType === 'percentage' ? '%' : ''}</td>
+                        <td>${offer.offerType}</td>
+                          <td>${offer.startDate.split('T')[0]}</td>
+                            <td>${offer.endDate.split('T')[0]}</td>
+                        <td>
+                            <button onclick="editOffer('${offer._id}')">Edit</button>
+                            <button onclick="deleteOffer('${offer._id}')">Delete</button>
+                        </td>
+                    `;
+                                tbody.appendChild(row);
+                            });
+                        });
+                }
+
+                // Edit Offer
+                window.editOffer = (id) => {
+
+                    fetch(`/admin/fetchofferbyid/${id}`)
+                        .then(response => response.json())
+                        .then(offer => {
+                            document.getElementById('editOfferName').value = offer.offerName;
+                            document.getElementById('editDiscountType').value=offer.discountType;
+                            document.getElementById('editDiscount').value = offer.discount;
+                            document.getElementById('editOfferType').value = offer.offerType;
+                            document.getElementById('editStartDate').value = offer.startDate.split('T')[0];
+                            document.getElementById('editEndDate').value = offer.endDate.split('T')[0];
+
+                            document.getElementById('editOfferFormContainer').style.display = "block";
+                            document.getElementById('offerTable').style.display = "none";
+
+                            const editForm = document.getElementById('editOfferForm');
+                            editForm.onsubmit = (e) => {
+                                e.preventDefault();
+                                const updatedData = {
+                                    offerName: document.getElementById('editOfferName').value,
+                                    discountType:document.getElementById('editDiscountType').value,
+                                    discount: document.getElementById('editDiscount').value,
+                                    offerType: document.getElementById('editOfferType').value,
+                                    startDate: document.getElementById('editStartDate').value,
+                                    endDate: document.getElementById('editEndDate').value,
+                                };
+
+                                if (updatedData.offerType === 'percentage' && updatedData.discount > 100) {
+                                    Swal.fire('Error', 'Discount percentage cannot exceed 100%', 'error');
+                                    return;
+                                }
+
+                                fetch(`/admin/updateoffers/${id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(updatedData)
+                                })
+                                    .then(() => {
+                                        Swal.fire('Updated', 'Offer updated successfully!', 'success');
+                                        document.getElementById('editOfferFormContainer').style.display = "none";
+                                        document.getElementById('offerTable').style.display = "block";
+                                        loadOffers();
+                                    });
+                            };
+                        });
+                };
+
+                // Cancel Edit
+                window.cancelEdit = () => {
+                    document.getElementById('editOfferFormContainer').style.display = 'none';
+                    document.getElementById('offerTable').style.display = "block";
+                };
+
+                // Delete Offer
+                window.deleteOffer = (id) => {
+                    fetch(`/admin/deleteoffers/${id}`, { method: 'DELETE' })
+                        .then(() => {
+                            Swal.fire('Deleted', 'Offer deleted successfully!', 'success');
+                            loadOffers();
+                        });
+                };
+
+
+                loadOffers();
+            });
+
+        </script>
+</body>
+
+</html>

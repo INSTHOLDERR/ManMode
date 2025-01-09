@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/css/adminstyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-background"></div>
+        <div class="login-box">
+            <h1 class="login-heading">Sign in</h1>
+            <form id="admin-login-form">
+                <div class="login-form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="login-form-group">
+                    <label for="password">Password</label>
+                    <div class="login-password-wrapper">
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="login-toggle-password" onclick="togglePassword()">Show</button>
+                    </div>
+                </div>
+                <div class="login-actions">
+                    <button type="submit" class="login-button">Sign In</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+
+    // show password
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+        }
+
+        // Validate form 
+        function validateFormFields() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            console.log(email,password);
+            
+
+            if (!email || !password) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "All fields are required.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+            if (password.length < 6) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Password must be at least 6 characters long.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Please enter a valid email address.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        // form submiting
+        document.getElementById('admin-login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+    
+            if (!validateFormFields()) return;
+
+            try {
+              
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value.trim();
+                const data = { email, password };
+                console.log(data);
+                
+
+             
+                const loginResponse = await fetch('/admin/adminlogin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (loginResponse.ok) {
+                    const loginResult = await loginResponse.json(); 
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Login successful.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/admin/admindashboard'; 
+                    });
+                } else {
+  
+                    const errorResult = await loginResponse.json();
+                    Swal.fire({
+                        title: 'Error!',
+                        text: errorResult.message || 'Login failed. Please check your credentials.',
+                        icon: 'error',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            } catch (error) {
+             
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An unexpected error occurred. Please try again later.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

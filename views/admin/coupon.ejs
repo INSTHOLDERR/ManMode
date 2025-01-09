@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/admin/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f9;
+        }
+
+        .header {
+            color: rgb(0, 0, 0);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        #showAddCouponButton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #showAddCouponButton:hover {
+            background-color: #45a049;
+        }
+
+        #couponsList {
+            margin-top: 20px;
+        }
+
+        .coupon-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .coupon-table th, .coupon-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .coupon-table th {
+            background-color: #f4f6f9;
+        }
+
+        .coupon-table button {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .coupon-table button:hover {
+            background-color: #e53935;
+        }
+
+        #add-coupon, #edit-coupon {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        #add-coupon input, #add-coupon select, #edit-coupon input, #edit-coupon select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        #add-coupon button, #edit-coupon button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 3px;
+        }
+
+        #add-coupon button:hover, #edit-coupon button:hover {
+            background-color: #45a049;
+        }
+
+        .logout-button {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            border-radius: 3px;
+        }
+
+        .logout-button:hover {
+            background-color: #e53935;
+        }
+    </style>
+</head>
+<body>
+    <%- include('./commonpages/sidebar') %>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Coupons</h1>
+            <button class="logout-button">Logout</button>
+        </div>
+
+    
+        <button id="showAddCouponButton">Add Coupon</button>
+
+        <!-- Add Coupon Section -->
+        <section id="add-coupon" style="display: none;">
+            <h2>Add Coupon</h2>
+            <form id="addCouponForm">
+                <input type="text" name="couponCode" placeholder="Coupon Code" required>
+                <select name="type" required>
+                    <option value="" disabled selected>Discount Type</option>
+                    <option value="percentageDiscount">Percentage</option>
+                    <option value="flatDiscount">Flat</option>
+                </select>
+                <input type="number" name="minimumPrice" placeholder="Minimum Price" required>
+                <input type="number" name="discount" placeholder="Discount Value" required>
+                <input type="number" name="maxRedeem" placeholder="Max Redeem Count" required>
+                <input type="date" name="expiry" required>
+                <button type="submit">Add Coupon</button>
+            </form>
+        </section>
+
+   
+        <section id="edit-coupon" style="display: none;">
+            <h2>Edit Coupon</h2>
+            <form id="editCouponForm">
+                <input type="hidden" name="couponId">
+                <input type="text" name="couponCode" placeholder="Coupon Code" required>
+                <select name="type" required>
+                    <option value="" disabled selected>Discount Type</option>
+                    <option value="percentageDiscount">Percentage</option>
+                    <option value="flatDiscount">Flat</option>
+                </select>
+                <input type="number" name="minimumPrice" placeholder="Minimum Price" required>
+                <input type="number" name="discount" placeholder="Discount Value" required>
+                <input type="number" name="maxRedeem" placeholder="Max Redeem Count" required>
+                <input type="date" name="expiry" required>
+                <button type="submit">Edit Coupon</button>
+            </form>
+        </section>
+
+      
+        <section id="view-coupons">
+            <h2>Coupon List</h2>
+            <div id="couponsList">
+                <table class="coupon-table">
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Discount Type</th>
+                            <th>Min Price</th>
+                            <th>Discount</th>
+                            <th>Max Redeem</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponsTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('showAddCouponButton').addEventListener('click', () => {
+            document.getElementById('add-coupon').style.display = 'block';
+            document.getElementById('edit-coupon').style.display = 'none';
+            document.getElementById('view-coupons').style.display = 'none'; 
+        });
+
+        async function fetchCoupons() {
+            try {
+                const response = await fetch('/admin/getcoupon');
+                if (response.ok) {
+                    const data = await response.json();
+                    const coupons = data.coupons;
+                    renderCoupons(coupons);
+                } else {
+                    console.error('Failed to fetch coupons');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function renderCoupons(coupons) {
+            const couponsTableBody = document.getElementById('couponsTableBody');
+            couponsTableBody.innerHTML = ''; 
+            coupons.forEach(coupon => {
+                const couponRow = document.createElement('tr');
+                couponRow.innerHTML = `
+                    <td>${coupon.couponCode}</td>
+                    <td>${coupon.type === 'percentageDiscount' ? 'Percentage' : 'Flat'}</td>
+                    <td>₹${coupon.minimumPrice}</td>
+                    <td>${coupon.discount}${coupon.type === 'percentageDiscount' ? '%' : '₹'}</td>
+                    <td>${coupon.maxRedeem}</td>
+                    <td>${new Date(coupon.expiry).toLocaleDateString()}</td>
+                    <td>${coupon.status ? 'Active' : 'Inactive'}</td>
+                    <td>
+                        <button onclick="editCoupon('${coupon._id}', '${coupon.couponCode}', '${coupon.type}', '${coupon.minimumPrice}', '${coupon.discount}', '${coupon.maxRedeem}', '${coupon.expiry}')">Edit</button>
+                        <button onclick="deleteCoupon('${coupon._id}')">Delete</button>
+                    </td>
+                `;
+                couponsTableBody.appendChild(couponRow);
+            });
+        }
+
+        function editCoupon(id, code, type, minPrice, discount, maxRedeem, expiry) {
+    document.getElementById('add-coupon').style.display = 'none';
+    document.getElementById('edit-coupon').style.display = 'block';
+    document.getElementById('view-coupons').style.display = 'none';
+
+    const form = document.getElementById('editCouponForm');
+    form.couponId.value = id;
+    form.couponCode.value = code;
+    form.type.value = type;
+    form.minimumPrice.value = minPrice;
+    form.discount.value = discount;
+    form.maxRedeem.value = maxRedeem;
+
+
+    const formattedExpiryDate = new Date(expiry).toISOString().split('T')[0];
+    form.expiry.value = formattedExpiryDate;
+}
+
+        document.getElementById('addCouponForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const couponData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/admin/addcoupon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(couponData)
+                });
+
+                if (response.ok) {
+                    Swal.fire('Success', 'Coupon added successfully', 'success');
+                    fetchCoupons(); 
+                    document.getElementById('add-coupon').style.display = 'none';
+                    document.getElementById('view-coupons').style.display = 'block';
+                } else {
+                    Swal.fire('Error', 'Failed to add coupon', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'An unexpected error occurred', 'error');
+            }
+        });
+
+        document.getElementById('editCouponForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const couponData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`/admin/editcoupon/${couponData.couponId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(couponData)
+                });
+
+                if (response.ok) {
+                    Swal.fire('Success', 'Coupon updated successfully', 'success');
+                    fetchCoupons();
+                    document.getElementById('edit-coupon').style.display = 'none';
+                    document.getElementById('view-coupons').style.display = 'block';
+                } else {
+                    Swal.fire('Error', 'Failed to update coupon', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'An unexpected error occurred', 'error');
+            }
+        });
+
+        async function deleteCoupon(id) {
+            const isConfirmed = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'You won\'t be able to revert this!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (isConfirmed.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/deletecoupon/${id}`, { method: 'DELETE' });
+
+                    if (response.ok) {
+                        Swal.fire('Deleted!', 'Coupon has been deleted.', 'success');
+                        fetchCoupons(); 
+                    } else {
+                        Swal.fire('Error', 'Failed to delete coupon', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire('Error', 'An unexpected error occurred', 'error');
+                }
+            }
+        }
+
+  
+        fetchCoupons();
+    </script>
+</body>
+</html>

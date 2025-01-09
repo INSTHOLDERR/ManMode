@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" href="/admin/product.css">
+
+    <style>
+        #cropper-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .cropper-modal {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        #cropper-image {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #crop-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #crop-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="edit-product-form-element">
+        <header class="header">
+            <h2>Edit Product</h2>
+            <div class="actions">
+
+                <button class="btn btn-primary">Edit Product</button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="left">
+                <div class="left-side">
+                    <h3>General Information</h3>
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" name="product-name" placeholder="Enter product name">
+
+                    <label for="product-description">Description Product</label>
+                    <textarea id="product-description" name="product-description"
+                        placeholder="Enter product description"></textarea>
+                    <div class="size-selection">
+                        <div>
+                            <h3>Size</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <div class="size-box" onclick="toggleInput('xs')">XS</div>
+                                <div class="size-box" onclick="toggleInput('x')">X</div>
+                                <div class="size-box" onclick="toggleInput('m')">M</div>
+                                <div class="size-box" onclick="toggleInput('xl')">XL</div>
+                                <div class="size-box" onclick="toggleInput('xxl')">XXL</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3>Size Quantity</h3>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <input type="text" id="input-xs" placeholder="XS" style="width: 50px; display: none;"
+                                    oninput="updateTotal()">
+                                <input type="text" id="input-x" placeholder="X" style="width: 50px; display: none;"
+                                    oninput="updateTotal()">
+                                <input type="text" id="input-m" placeholder="M" style="width: 50px; display: none;"
+                                    oninput="updateTotal()">
+                                <input type="text" id="input-xl" placeholder="XL" style="width: 50px; display: none;"
+                                    oninput="updateTotal()">
+                                <input type="text" id="input-xxl" placeholder="XXL" style="width: 50px; display: none;"
+                                    oninput="updateTotal()">
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="left-side">
+                    <h3>Price and Stock</h3>
+                    <div style="display: flex; gap: 20px;">
+                        <div style="flex: 1;">
+                            <label for="base-price">Base Price</label>
+                            <input type="text" id="base-price" name="base-price" placeholder="Enter base price">
+                        </div>
+                        <!-- <div style="flex: 1;">
+                        <label for="discount">Discount (%)</label>
+                        <input type="text" id="discount" name="discount" placeholder="Enter discount">
+                    </div> -->
+                    </div>
+
+                    <div style="display: flex; gap: 20px;">
+                        <!-- <div style="flex: 1;">
+                        <label for="actual-price">Actual Price</label>
+                        <input type="text" id="actual-price" name="actual-price" placeholder="Enter actual price">
+                    </div> -->
+                        <div style="flex: 1; margin-top: 20px;">
+                            <label for="stock">Stock</label>
+                            <input type="text" id="stock" name="stock" placeholder="Total stock quantity" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <div class="right-side">
+                    <h3>Upload Image</h3>
+                    <div class="product-image">
+                        <img id="main-image"
+                            src="https://i.pinimg.com/736x/0c/71/48/0c71486941a6d025684913d38960083e.jpg"
+                            alt="Product Main Image">
+                        <div class="product-thumbnails" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        </div>
+                    </div>
+                    <input type="file" id="image-upload" multiple accept="image/*">
+                    <div id="cropper-container" style="display: none;">
+                        <div class="cropper-modal">
+                            <img id="cropper-image" alt="Image for cropping">
+                            <button id="crop-button">Crop</button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="right-side">
+                    <h3>Category</h3>
+                    <select id="category-select">
+                        <option value="">Select Category</option>
+                    </select>
+
+                    <h3>Brand</h3>
+                    <select id="brand-select">
+                        <option value="">Select Brand</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        function toggleInput(size) {
+            const inputField = document.getElementById(`input-${size}`);
+            inputField.style.display = inputField.style.display === "none" || inputField.style.display === "" ? "block" : "none";
+            if (inputField.style.display === "none") {
+                inputField.value = '';
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const sizes = ['xs', 'x', 'm', 'xl', 'xxl'];
+            let total = 0;
+            let anyVisible = false;
+
+            sizes.forEach(size => {
+                const inputField = document.getElementById(`input-${size}`);
+                const value = parseInt(inputField.value, 10);
+                if (inputField.style.display === "block") {
+                    anyVisible = true;
+                    if (!isNaN(value)) {
+                        total += value;
+                    }
+                }
+            });
+            document.getElementById('stock').value = anyVisible ? total : 0;
+        }
+
+
+// getting category and brand
+        async function fetchDataAndPopulate(url, selectId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+
+                const selectElement = document.getElementById(selectId);
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item._id;
+                    option.textContent = item.name;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error(`Error populating ${selectId}:`, error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDataAndPopulate('/admin/productcategory', 'category-select');
+            fetchDataAndPopulate('/admin/productbrand', 'brand-select');
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const urlParams = new URLSearchParams(window.location.search);
+
+
+            const productId = urlParams.get('id');
+
+            console.log('Product ID:', productId);
+            if (productId) {
+                editProduct(productId);
+            } else {
+                console.error('Product ID not found in the URL.');
+            }
+        });
+
+        let uploadedFiles = [];
+
+
+
+        // edit product
+
+
+async function editProduct(productId) {
+    try {
+       
+        const response = await fetch(`/admin/geteditproduct/${productId}`);
+        if (!response.ok) throw new Error('Failed to fetch product details');
+        
+        const product = await response.json();
+
+  
+        document.getElementById('product-name').value = product.name || '';
+        document.getElementById('product-description').value = product.description || '';
+
+       
+        document.getElementById('base-price').value = product.basePrice || '';
+        document.getElementById('stock').value = product.stock || 0;
+
+    
+        document.getElementById('category-select').value = product.category || '';
+        document.getElementById('brand-select').value = product.brand || '';
+
+        const sizes = ['xs', 'x', 'm', 'xl', 'xxl'];
+        sizes.forEach(size => {
+            const sizeInput = document.getElementById(`input-${size.toLowerCase()}`);
+            const sizeQuantity = product.sizes instanceof Map 
+                ? product.sizes.get(size.toUpperCase()) 
+                : (product.sizes?.[size.toUpperCase()] || 0);
+            
+            if (sizeQuantity > 0) {
+                sizeInput.style.display = 'block';
+                sizeInput.value = sizeQuantity;
+            } else {
+                sizeInput.style.display = 'none';
+                sizeInput.value = '';
+            }
+        });
+        updateTotal();
+
+     
+        if (product.images && product.images.length > 0) {
+            console.log(product.images[0]);
+            thumbnailsContainer.innerHTML = '';
+
+            let mainImageUrl = product.images[0].replace('uploads', '');
+            document.getElementById('main-image').src = `http://manmode.uno/${mainImageUrl}`;
+
+           
+            const imagePromises = product.images.map((imageUrl, index) => {
+                const transformedUrl = imageUrl.replace('uploads', '');
+                const fullUrl = `http://manmode.uno/${transformedUrl}`;
+
+                return fetch(fullUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                    
+                        const imageRelativeUrl = imageUrl.split('uploaded-images/')[1];
+
+                     
+                        uploadedFiles.push(imageRelativeUrl);
+
+                        const imgElement = document.createElement('img');
+                        imgElement.src = fullUrl;
+                        imgElement.alt = `Product Thumbnail ${index + 1}`;
+                        imgElement.style.width = '50px';
+                        imgElement.style.height = '50px';
+                        imgElement.style.objectFit = 'cover';
+
+                        const removeBtn = document.createElement('span');
+                        removeBtn.innerHTML = '&times;';
+                        removeBtn.style.position = 'absolute';
+                        removeBtn.style.top = '0';
+                        removeBtn.style.right = '0';
+                        removeBtn.style.color = 'red';
+                        removeBtn.style.cursor = 'pointer';
+                        removeBtn.addEventListener('click', () => {
+                            const fileIndex = uploadedFiles.indexOf(imageRelativeUrl);
+                            if (fileIndex > -1) {
+                                uploadedFiles.splice(fileIndex, 1);
+                                thumbnailsContainer.removeChild(containerDiv);
+                                console.log('Updated uploadedFiles:', uploadedFiles);
+                            }
+                        });
+
+                        const containerDiv = document.createElement('div');
+                        containerDiv.style.position = 'relative';
+                        containerDiv.style.display = 'inline-block';
+                        containerDiv.appendChild(imgElement);
+                        containerDiv.appendChild(removeBtn);
+
+                        imgElement.addEventListener('click', () => {
+                            document.getElementById('main-image').src = fullUrl;
+                        });
+
+                        thumbnailsContainer.appendChild(containerDiv);
+                    });
+            });
+
+         
+            Promise.all(imagePromises)
+                .then(() => {
+                    console.log('All images processed. Final uploadedFiles', uploadedFiles);
+                })
+                .catch(error => {
+                    console.error('Error processing images:', error);
+                });
+        }
+    } catch (error) {
+        console.error('Error fetching product details:', error);
+        alert('Failed to load product details. Please try again.');
+    }
+}
+
+console.log("after removing", uploadedFiles);
+
+
+
+        const mainImage = document.getElementById('main-image');
+        const imageUpload = document.getElementById('image-upload');
+        const thumbnailsContainer = document.querySelector('.product-thumbnails');
+        let uploadedImages = [];
+
+
+        const cropperContainer = document.getElementById('cropper-container');
+        const cropperImage = document.getElementById('cropper-image');
+        const cropButton = document.getElementById('crop-button');
+        let cropper;
+        imageUpload.addEventListener('change', function () {
+            const file = imageUpload.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    cropperImage.src = e.target.result;
+                    cropperContainer.style.display = 'flex';
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        minCropBoxWidth: 500,
+                        minCropBoxHeight: 500,
+                        ready() {
+                            const cropBoxData = cropper.getCropBoxData();
+                            cropBoxData.width = 500;
+                            cropBoxData.height = 500;
+                            cropper.setCropBoxData(cropBoxData);
+                        }
+                    });
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const MAX_IMAGES = 4;
+
+        imageUpload.addEventListener('change', function () {
+            if (uploadedFiles.length >= MAX_IMAGES) {
+                alert(`You can only upload a maximum of ${MAX_IMAGES} images.`);
+                imageUpload.value = ''; 
+                return;
+            }
+
+            const file = imageUpload.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    cropperImage.src = e.target.result;
+                    cropperContainer.style.display = 'flex';
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        minCropBoxWidth: 500,
+                        minCropBoxHeight: 500,
+                        ready() {
+                            const cropBoxData = cropper.getCropBoxData();
+                            cropBoxData.width = 500;
+                            cropBoxData.height = 500;
+                            cropper.setCropBoxData(cropBoxData);
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        cropButton.addEventListener('click', function () {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 500,
+                    height: 500,
+                });
+
+                canvas.toBlob(function (blob) {
+                    const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+
+                    if (uploadedFiles.length >= MAX_IMAGES) {
+                        alert(`Maximum of ${MAX_IMAGES} images allowed.`);
+                        return;
+                    }
+
+                    uploadedFiles.push(file);
+
+                    console.log(uploadedFiles);
+
+                    const imgElement = document.createElement('img');
+                    imgElement.src = URL.createObjectURL(blob);
+                    imgElement.alt = 'Thumbnail';
+                    imgElement.style.cursor = 'pointer';
+                    imgElement.style.width = '50px';
+                    imgElement.style.height = '50px';
+                    imgElement.style.objectFit = 'cover';
+
+                    // Add remove button
+                    const removeBtn = document.createElement('span');
+                    removeBtn.innerHTML = '&times;';
+                    removeBtn.style.position = 'absolute';
+                    removeBtn.style.top = '0';
+                    removeBtn.style.right = '0';
+                    removeBtn.style.color = 'red';
+                    removeBtn.style.cursor = 'pointer';
+                    removeBtn.addEventListener('click', () => {
+                        const index = uploadedFiles.indexOf(file);
+                        if (index > -1) {
+                            uploadedFiles.splice(index, 1);
+                            thumbnailsContainer.removeChild(containerDiv);
+                        }
+                    });
+
+                    const containerDiv = document.createElement('div');
+                    containerDiv.style.position = 'relative';
+                    containerDiv.style.display = 'inline-block';
+                    containerDiv.appendChild(imgElement);
+                    containerDiv.appendChild(removeBtn);
+
+                    imgElement.addEventListener('click', () => {
+                        mainImage.src = URL.createObjectURL(blob);
+                    });
+
+                    thumbnailsContainer.appendChild(containerDiv);
+
+                    if (uploadedFiles.length === 1) {
+                        mainImage.src = URL.createObjectURL(blob);
+                    }
+
+                    cropperContainer.style.display = 'none';
+                    cropper.destroy();
+                    imageUpload.value = '';
+                }, 'image/jpeg');
+            }
+        });
+
+        console.log("uploadedFiles",uploadedFiles);
+
+
+
+        // editing the product
+
+        document.querySelector('.btn-primary').addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const productName = document.getElementById('product-name').value.trim();
+    const productDescription = document.getElementById('product-description').value.trim();
+    const basePrice = document.getElementById('base-price').value.trim();
+    const stock = document.getElementById('stock').value.trim();
+    const category = document.getElementById('category-select').value;
+    const brand = document.getElementById('brand-select').value;
+
+    const sizes = {};
+    ['xs', 'x', 'm', 'xl', 'xxl'].forEach(size => {
+        const input = document.getElementById(`input-${size}`);
+        if (input && input.style.display !== 'none' && input.value.trim()) {
+            sizes[size.toUpperCase()] = parseInt(input.value.trim());
+        }
+    });
+
+    const formData = new FormData();
+    formData.append('name', productName);
+    formData.append('description', productDescription);
+    formData.append('basePrice', parseFloat(basePrice));
+    formData.append('stock', parseInt(stock));
+    formData.append('category', category);
+    formData.append('brand', brand);
+    formData.append('sizes', JSON.stringify(sizes));
+
+    uploadedFiles.forEach(file => {
+        if (typeof file === 'string') {
+            // Append existing image URLs
+            formData.append('existingImages', file);
+        } else {
+            // Append new file objects
+            formData.append('images', file);
+        }
+    });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id');
+
+    try {
+        const response = await fetch(`/admin/updateproduct/${productId}`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Product updated successfully!',
+                text: 'The product details have been updated.',
+                confirmButtonText: 'OK',
+                timer: 3000
+            }).then(() => {
+                window.location.href = '/admin/adminproducts';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to update product',
+                text: result.message || 'An unexpected error occurred.',
+                confirmButtonText: 'Try Again'
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'An error occurred',
+            text: 'We encountered an issue while updating the product. Please try again later.',
+            confirmButtonText: 'OK'
+        });
+    }
+});
+
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,280 @@
+/* register page */
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+    --primary-color: #FF7A3D;
+    --text-color: #333;
+    --background-color: #F5F6FA;
+    --input-background: #F8F9FC;
+}
+
+body {
+    background-color: var(--background-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.register-container {
+    background: white;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.register-left-section {
+    background: white;
+    padding: 3rem;
+    width: 50%;
+    color: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-left-section-inside {
+    height: 550px;
+    width: 450px;
+    background: var(--primary-color) url('../images/registration.jpg') no-repeat center center;
+    background-size: cover;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.register-left-forgot-section-inside {
+    height: 400px;
+    width: 400px;
+    background: var(--primary-color) url('../images/forgotpass.jpg') no-repeat center center;
+    background-size: cover;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-right-section {
+    padding: 3rem;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.register-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.register-logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color) url('your-image.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+}
+
+.register-logo-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.register-header {
+    margin-bottom: 2rem;
+}
+
+.register-title {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.register-subtitle {
+    color: #666;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.register-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.register-input-field {
+    padding: 1rem;
+    border: none;
+    background: var(--input-background);
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+.register-input-field:focus {
+    outline: 2px solid var(--primary-color);
+}
+
+.register-forgot-password {
+    align-self: flex-end;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.register-button {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.register-button:hover {
+    opacity: 0.9;
+}
+
+.register-divider {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.register-divider::before,
+.register-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+.register-social-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.register-social-button {
+    flex: 1;
+    padding: 0.875rem;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.register-social-button:hover {
+    background: #f5f5f5;
+}
+
+.register-signup-prompt {
+    margin-top: 2rem;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.register-signup-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+@media (max-width: 968px) {
+    .register-left-section {
+        display: none;
+    }
+
+    .register-right-section {
+        width: 100%;
+        padding: 2rem;
+    }
+
+    .register-container {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-social-buttons {
+        flex-direction: column;
+    }
+
+    .register-right-section {
+        padding: 1.5rem;
+    }
+}
+
+.register-password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.register-input-field {
+    width: 100%;
+    padding-right: 50px;
+    box-sizing: border-box;
+}
+
+.register-toggle-password-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--primary-color);
+    padding: 5px;
+}
+
+
+
+.resend-otp {
+    /* display: inline-block; */
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#resend-otp:hover {
+    color: #0056b3;
+}
+
+#otp-input {
+    margin-top: 10px;
+}

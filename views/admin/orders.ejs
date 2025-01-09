@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/admin/users.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+  
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+    
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+    
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    
+        .return-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+    
+        .take-action-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    
+        .approve-btn, .reject-btn {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+        }
+    
+        .approve-btn {
+            background-color: green;
+            color: white;
+        }
+    
+        .reject-btn {
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./commonpages/sidebar') %>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Orders</h1>
+            <button class="logout-button">Logout</button>
+        </div>
+
+        <div class="dashboard-top">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-box" placeholder="Search users...">
+            </div>
+            <div class="summary-boxes">
+                <div class="summary-box">
+                    <h3>Total Orders (In Progress)</h3>
+                    <p id="total-orders">0</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Cancelled Orders</h3>
+                    <p id="cancelled-orders">0</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Shipped</h3>
+                    <p id="shipped-orders">0</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Out for Delivery</h3>
+                    <p id="out-for-delivery-orders">0</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Delivered</h3>
+                    <p id="delivered-orders">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Username</th>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Count</th>
+                        <th>Price</th>
+                        <th>Item Status</th>
+                        <th>Return Status</th>
+                        <th>Total Price</th>
+                        <th>Payment Method</th>
+                    </tr>
+                </thead>
+                <tbody id="order-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and display all orders
+        async function fetchOrders() {
+            try {
+                const response = await fetch('/admin/getallorderdetails');
+                if (!response.ok) throw new Error('Failed to fetch order details');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+
+                const orderTableBody = document.getElementById('order-table-body');
+                orderTableBody.innerHTML = '';  
+
+        
+                let statusCounts = {
+                    "In Progress": 0,
+                    "Shipped": 0,
+                    "Out for Delivery": 0,
+                    "Delivered": 0,
+                    "Cancelled": 0,
+                };
+
+       
+                data.orders.forEach(order => renderOrderRow(order, orderTableBody, statusCounts));
+
+            
+                updateOrderSummary(statusCounts);
+
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        }
+
+        function renderOrderRow(order, tableBody, statusCounts) {
+    const { _id, userId, orderedItems, totalAmount, paymentMethod } = order;
+
+    console.log("Order ID", _id);
+    console.log("Ordered Items", orderedItems);
+    
+    orderedItems.forEach((item, index) => {
+        const product = item.productId;
+        console.log("Product ID", product?.id);  
+
+     
+        if (statusCounts[item.status] !== undefined) statusCounts[item.status]++;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            ${index === 0 ? `<td rowspan="${orderedItems.length}">${_id}</td>` : ''}
+            ${index === 0 ? `<td rowspan="${orderedItems.length}">${userId?.name || 'N/A'}</td>` : ''}
+            <td><img src="${product?.image || ''}" alt="${product?.name || 'N/A'}" class="product-image"></td>
+            <td>${product?.name || 'N/A'}</td>
+            <td>${item.count || 0}</td>
+            <td>₹${item.totalPrice || 0}</td>
+            <td>${getStatusCellContent(item, _id)}</td>
+            <td>${getReturnStatusCellContent(item,_id,orderedItems._id)}</td>
+            ${index === 0 ? `<td rowspan="${orderedItems.length}">₹${totalAmount}</td>` : ''}
+            ${index === 0 ? `<td rowspan="${orderedItems.length}">${paymentMethod}</td>` : ''}
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+function getReturnStatusCellContent(item, orderid) {
+    if (item.returnStatus === "Requested") {
+        return `
+            <button class="take-action-btn" 
+                data-item-id="${item._id}" 
+                data-order-id="${orderid}" 
+                data-reason="${item.returnReason || 'No reason provided'}">
+                Take Action
+            </button>`;
+    }
+    return `<span>${item.returnStatus || 'N/A'}</span>`;
+}
+
+        function getStatusCellContent(item, orderId) {
+
+    console.log('getStatusCellContent called with:', { item, orderId });
+
+    if (!item || !orderId) {
+        console.error('Invalid item or orderId:', { item, orderId });
+        return ''; 
+    }
+
+
+    if (item.status === "Cancelled") {
+        return `<span>Cancelled</span>`;
+    } else if (item.status === "Delivered") {
+        return `<span>Delivered</span>`;
+    } else if (item.returnStatus === "Requested") {
+  
+        console.log('Item return status is requested:', { item, orderId });
+        
+        return `
+            <button class="view-reason-btn" 
+                data-order-id="${orderId}" 
+                data-item-id="${item._id}" 
+                data-reason="${item.returnReason}">
+                View Reason
+            </button>
+            <div class="return-actions" style="display: flex; gap: 10px; margin-top: 5px;">
+                <button class="approve-btn" 
+                    data-order-id="${orderId}" 
+                    data-item-id="${item._id}">
+                    Approve
+                </button>
+                <button class="reject-btn" 
+                    data-order-id="${orderId}" 
+                    data-item-id="${item._id}">
+                    Reject
+                </button>
+            </div>`;
+    }
+
+    return `
+        <select class="status-select" 
+            data-order-id="${orderId}" 
+            data-item-id="${item._id}">
+            <option value="Order Confirmed" ${item.status === "Order Confirmed" ? "selected" : ""}>Order Confirmed</option>
+            <option value="In Progress" ${item.status === "In Progress" ? "selected" : ""}>In Progress</option>
+            <option value="Shipped" ${item.status === "Shipped" ? "selected" : ""}>Shipped</option>
+            <option value="Out for Delivery" ${item.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
+            <option value="Delivered" ${item.status === "Delivered" ? "selected" : ""}>Delivered</option>
+        </select>`;
+}
+
+
+
+
+        function updateOrderSummary(counts) {
+            document.getElementById('total-orders').innerText = counts["In Progress"];
+            document.getElementById('cancelled-orders').innerText = counts["Cancelled"];
+            document.getElementById('shipped-orders').innerText = counts["Shipped"];
+            document.getElementById('out-for-delivery-orders').innerText = counts["Out for Delivery"];
+            document.getElementById('delivered-orders').innerText = counts["Delivered"];
+        }
+
+        async function updateStatus(url, payload, successMessage) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const result = await response.json();
+console.log(result);
+console.log(result.success);
+
+
+                if (result.success) {
+                    Swal.fire('Success', successMessage, 'success');
+                    fetchOrders(); 
+                } else {
+                    Swal.fire('Error', result.message || 'Operation failed.', 'error');
+                    console.log("kjdsihfkBahgdsvghb");
+                    
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'Unexpected error occurred.', 'error');
+            }
+        }
+
+
+
+        document.getElementById('order-table-body').addEventListener('click', event => {
+    if (event.target.classList.contains('take-action-btn')) {
+        const orderId = event.target.dataset.orderId;
+        const itemId = event.target.dataset.itemId;
+        const reason = event.target.dataset.reason;
+
+        console.log('Approve/Reject button clicked');
+        console.log('orderId:', orderId, 'itemId:', itemId, 'reason:', reason);  
+
+        Swal.fire({
+            title: 'Return Reason',
+            text: reason,
+            showCancelButton: true,
+            confirmButtonText: 'Approve',
+            cancelButtonText: 'Reject'
+        }).then(result => {
+            const returnStatus = result.isConfirmed ? 'Approved' : 'Rejected';
+            console.log('Return Status:', returnStatus);  
+
+            updateStatus('/admin/' + (returnStatus === 'Approved' ? 'approveReturn' : 'rejectReturn'), 
+                          { orderId, itemId, returnStatus },
+                          'Return request ' + returnStatus.toLowerCase() + '.');
+        });
+    }
+});
+   
+
+document.getElementById('order-table-body').addEventListener('change', async (event) => {
+            if (event.target.classList.contains('status-select')) {
+                const newStatus = event.target.value;
+                const orderId = event.target.getAttribute('data-order-id');
+                const itemId = event.target.getAttribute('data-item-id');
+                console.log(newStatus, orderId, itemId);
+
+                try {
+                   
+                    const response = await fetch('/admin/updateItemStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            orderId,
+                            itemId,
+                            status: newStatus,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Status Updated',
+                            text: 'The order status has been successfully updated.',
+                        });
+                        fetchOrders();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Update Failed',
+                            text: result.message || 'Failed to update the order status.',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Unexpected Error',
+                        text: 'An unexpected error occurred while updating the status.',
+                    });
+                }
+            }
+        });
+
+
+
+        fetchOrders();
+    </script>
+</body>
+</html>

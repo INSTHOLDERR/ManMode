@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="./css1/home.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+   
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .user-details,
+        .addresses {
+            margin-bottom: 20px;
+        }
+
+
+        .user-details-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .user-details-card img {
+            border-radius: 50%;
+            margin-right: 20px;
+        }
+
+        .user-details-card .details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .addresses .address {
+            margin-bottom: 10px;
+            padding: 40px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        .default {
+            font-weight: bold;
+            color: green;
+        }
+
+
+        .address-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .address-item {
+            width: 48%;
+            margin-right: 4%;
+            margin-bottom: 10px;
+        }
+
+
+        @media (max-width: 768px) {
+            .address-item {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .user-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .user-details img {
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .addresses {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .address-card {
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .payment-methods {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-success {
+            margin: 10px 0;
+        }
+
+        #addAddressDiv, #EditAddressDiv {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #price-details {
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        #price-details div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        #coupon-list {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #coupons {
+            list-style: none;
+            padding: 0;
+        }
+
+        #coupons li {
+            border: 1px dashed #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #coupons li:hover {
+            background-color: #f8f9fa;
+        }
+
+        .coupon-code {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .coupon-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        #place-order-button {
+            font-weight: 500;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../common-ele/nav') %>
+
+
+
+        <div class="container mt-5" style="min-height: 100vh; margin-bottom: 20px;">
+            <div class="row">
+
+                <div class="col-md-8">
+                    <div class="row">
+                        <div id="user-details" class="user-details">
+                            <h2>User Details</h2>
+                            <img id="user-image" alt="User Image" width="100" height="100">
+                            <p id="user-name"></p>
+                            <p id="user-email"></p>
+                            <p id="user-phone"></p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div id="user-addresses" class="addresses">
+                            <h2>Addresses</h2>
+                            <div id="address-list"></div>
+                        </div>
+
+                        <button class="btn btn-success" id="addAddressBtn">Add Address</button>
+                    </div>
+                    <div id="addAddressDiv" style="display: none;">
+                        <h3 id="formTitle">Add New Address</h3>
+                        <form id="addAddressForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" id="phone"
+                                    placeholder="Enter your phone number">
+                            </div>
+                            <div class="mb-3">
+                                <label for="pincode" class="form-label">Pincode</label>
+                                <input type="text" class="form-control" id="pincode" placeholder="Enter pincode">
+                            </div>
+                            <div class="mb-3">
+                                <label for="locality" class="form-label">Locality</label>
+                                <input type="text" class="form-control" id="locality" placeholder="Enter locality">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" placeholder="Enter address"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City/District/Town</label>
+                                <input type="text" class="form-control" id="city"
+                                    placeholder="Enter city/district/town">
+                            </div>
+                            <div class="mb-3">
+                                <label for="state" class="form-label">State</label>
+                                <select class="form-select" id="state">
+                                    <option value="" selected disabled>Select State</option>
+                                    <option value="andhra_pradesh">Andhra Pradesh</option>
+                                    <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                                    <option value="assam">Assam</option>
+                                    <option value="bihar">Bihar</option>
+                                    <option value="chhattisgarh">Chhattisgarh</option>
+                                    <option value="goa">Goa</option>
+                                    <option value="gujarat">Gujarat</option>
+                                    <option value="haryana">Haryana</option>
+                                    <option value="himachal_pradesh">Himachal Pradesh</option>
+                                    <option value="jharkhand">Jharkhand</option>
+                                    <option value="karnataka">Karnataka</option>
+                                    <option value="kerala">Kerala</option>
+                                    <option value="madhya_pradesh">Madhya Pradesh</option>
+                                    <option value="maharashtra">Maharashtra</option>
+                                    <option value="manipur">Manipur</option>
+                                    <option value="meghalaya">Meghalaya</option>
+                                    <option value="mizoram">Mizoram</option>
+                                    <option value="nagaland">Nagaland</option>
+                                    <option value="odisha">Odisha</option>
+                                    <option value="punjab">Punjab</option>
+                                    <option value="rajasthan">Rajasthan</option>
+                                    <option value="sikkim">Sikkim</option>
+                                    <option value="tamil_nadu">Tamil Nadu</option>
+                                    <option value="telangana">Telangana</option>
+                                    <option value="tripura">Tripura</option>
+                                    <option value="uttar_pradesh">Uttar Pradesh</option>
+                                    <option value="uttarakhand">Uttarakhand</option>
+                                    <option value="west_bengal">West Bengal</option>
+                                    <option value="andaman_nicobar">Andaman and Nicobar Islands</option>
+                                    <option value="chandigarh">Chandigarh</option>
+                                    <option value="dadra_nagar_haveli">Dadra and Nagar Haveli</option>
+                                    <option value="daman_diu">Daman and Diu</option>
+                                    <option value="delhi">Delhi</option>
+                                    <option value="lakshadweep">Lakshadweep</option>
+                                    <option value="puducherry">Puducherry</option>
+                                    
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="landmark" class="form-label">Landmark</label>
+                                <input type="text" class="form-control" id="landmark" placeholder="Enter landmark">
+                            </div>
+                            <div class="mb-3">
+                                <label for="altPhone" class="form-label">Alternative Phone</label>
+                                <input type="text" class="form-control" id="altPhone"
+                                    placeholder="Enter alternative phone number">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="saveButton">Save Address</button>
+                        </form>
+                    </div>
+
+                    <div id="EditAddressDiv" style="display: none;">
+                        <h3 id="formTitle">Edit Address</h3>
+                        <form id="editaddressForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" id="phone"
+                                    placeholder="Enter your phone number">
+                            </div>
+                            <div class="mb-3">
+                                <label for="pincode" class="form-label">Pincode</label>
+                                <input type="text" class="form-control" id="pincode" placeholder="Enter pincode">
+                            </div>
+                            <div class="mb-3">
+                                <label for="locality" class="form-label">Locality</label>
+                                <input type="text" class="form-control" id="locality" placeholder="Enter locality">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" placeholder="Enter address"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City/District/Town</label>
+                                <input type="text" class="form-control" id="city"
+                                    placeholder="Enter city/district/town">
+                            </div>
+                            <div class="mb-3">
+                                <label for="state" class="form-label">State</label>
+                                <select class="form-select" id="state">
+                                    <option value="" selected disabled>Select State</option>
+                                    <option value="state1">State 1</option>
+                                    <option value="state2">State 2</option>
+                                    <option value="state3">State 3</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="landmark" class="form-label">Landmark</label>
+                                <input type="text" class="form-control" id="landmark" placeholder="Enter landmark">
+                            </div>
+                            <div class="mb-3">
+                                <label for="altPhone" class="form-label">Alternative Phone</label>
+                                <input type="text" class="form-control" id="altPhone"
+                                    placeholder="Enter alternative phone number">
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="updateButton">Update Address</button>
+                        </form>
+                    </div>
+
+                    <div class="row">
+                        <h4>Place Order</h4>
+                        <div id="cart-items"></div>
+                    </div>
+
+                    <div class="row">
+                        <h4>Payment Methods</h4>
+                        <div id="payment-methods" class="payment-methods d-flex border p-3 mt-3">
+
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cashOnDelivery"
+                                    value="COD" checked>
+                                <label class="form-check-label" for="cashOnDelivery">
+                                    Cash on Delivery
+                                </label>
+                            </div>
+
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay"
+                                    value="Razorpay">
+                                <label class="form-check-label" for="razorpay">
+                                    Razorpay
+                                </label>
+                            </div>
+
+
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="wallet"
+                                    value="Wallet">
+                                <label class="form-check-label" for="wallet">
+                                    Wallet
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="cod-message" class="text-danger mt-2"></div>
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card p-3">
+                        <h5>Total</h5>
+                        <div id="price-details">
+                            <div>Actual Price: ₹<span id="actual-price">0</span></div>
+                            <div>Discount: ₹<span id="discount-amount">0</span></div>
+                            <div>Delivery Charge: ₹<span id="delivery-charge">0</span></div>
+                            <div>Total Price: ₹<span id="total-price">0</span></div>
+                        </div>
+                        <button class="btn btn-primary mt-3 w-100" id="place-order-button">Place Order</button>
+                    </div>
+
+                    <div class="mt-3">
+                        <h6>Apply Coupon</h6>
+                        <input type="text" id="coupon-code" class="form-control" placeholder="Enter coupon code">
+                        <div class="d-flex justify-content-between mt-2">
+                            <button class="btn btn-info" id="view-coupons-btn">View Coupons</button>
+                            <button class="btn btn-success" id="apply-coupon-btn">Apply Coupon</button>
+                        </div>
+                    </div>
+
+                    <div id="coupon-list" class="mt-3" style="display: none;">
+                        <ul id="coupons"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+        <%- include('../common-ele/footer') %>
+        <script>
+
+
+            const addAddressBtn = document.getElementById('addAddressBtn');
+            const addAddressDiv = document.getElementById('addAddressDiv');
+            const editAddressDiv = document.getElementById('EditAddressDiv');
+            const formTitle = document.getElementById('formTitle');
+            const addaddressForm = document.getElementById('addAddressForm');
+            const editaddressForm = document.getElementById('editAddressForm');
+
+            let editingAddress = null;
+
+            addAddressBtn.addEventListener('click', () => {
+                addaddressForm.reset();
+                editingAddress = null;
+                addAddressDiv.style.display = 'block';
+                editAddressDiv.style.display = 'none'
+            });
+
+
+            addaddressForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const addressData = {
+                    name: document.getElementById("name").value,
+                    phone: document.getElementById("phone").value,
+                    zipCode: document.getElementById("pincode").value,
+                    locality: document.getElementById("locality").value,
+                    address: document.getElementById("address").value,
+                    city: document.getElementById("city").value,
+                    state: document.getElementById("state").value,
+                    landmark: document.getElementById("landmark").value || null,
+                    altPhone: document.getElementById("altPhone").value || null,
+                };
+
+                console.log("Address Data:", addressData);
+
+                try {
+                    const response = await fetch("/add-user-address", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ addressData }),
+                    });
+
+                    const result = await response.json();
+                    console.log(result);
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: "Address saved successfully!",
+                            confirmButtonText: "OK",
+                        }).then(() => {
+                            editAddressDiv.style.display = "none";
+                            addAddressDiv.style.display = "none";
+                            fetchCheckoutDetails();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: result.error || "Failed to save address",
+                            confirmButtonText: "Retry",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error saving address:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "An unexpected error occurred while saving the address.",
+                        confirmButtonText: "Retry",
+                    });
+                }
+            });
+
+
+            let cartData = [];
+
+
+            // cart fetching
+
+
+            const editAddressForm = document.getElementById("editaddressForm");
+            const addressContainer = document.createElement("div");
+            addressContainer.classList.add("address-container");
+
+            async function fetchCart() {
+                try {
+                    const response = await fetch('/getusercart');
+                    if (!response.ok) throw new Error('Failed to fetch cart data.');
+                    const data = await response.json();
+                    cartData = data.cart;
+                    renderCart(cartData);
+                } catch (error) {
+                    console.error('Error fetching cart:', error);
+                }
+            }
+
+
+            let orderIds;
+
+
+
+
+
+            let appliedCoupon = null;
+            let appliedCouponId = null;
+
+            // Fetch coupons 
+            async function fetchCoupons() {
+                try {
+                    const response = await fetch('/usercoupons');
+                    if (!response.ok) throw new Error('Failed to fetch coupons');
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching coupons:', error);
+                    return [];
+                }
+            }
+
+            // display coupons 
+            document.getElementById('view-coupons-btn').addEventListener('click', async () => {
+                const couponListElement = document.getElementById('coupons');
+                const couponListContainer = document.getElementById('coupon-list');
+                const actualPrice = parseFloat(document.getElementById('actual-price').textContent);
+
+
+                const coupons = await fetchCoupons();
+
+
+                couponListElement.innerHTML = '';
+
+
+                let hasValidCoupons = false;
+
+                coupons.forEach(coupon => {
+                    if (actualPrice >= coupon.minimumPrice) {
+                        hasValidCoupons = true;
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-2');
+                        listItem.innerHTML = `
+                <span>${coupon.couponCode} - ${coupon.type}</span>
+                <button class="btn btn-sm btn-primary copy-btn" data-code="${coupon.couponCode}">Copy</button>
+            `;
+                        couponListElement.appendChild(listItem);
+                    }
+                });
+
+
+                if (!hasValidCoupons) {
+                    Swal.fire({
+                        title: 'No Coupons Available',
+                        text: 'You have no valid coupons at the moment.',
+                        icon: 'info',
+                        confirmButtonText: 'OK'
+                    });
+                    couponListContainer.style.display = 'none';
+                } else {
+                    couponListContainer.style.display = 'block';
+                }
+            });
+
+
+            document.getElementById('coupon-list').addEventListener('click', (event) => {
+                if (event.target.classList.contains('copy-btn')) {
+                    const couponCode = event.target.getAttribute('data-code');
+
+                    if (event.target.textContent === 'Copy') {
+                        navigator.clipboard.writeText(couponCode)
+                            .then(() => {
+                                event.target.textContent = 'Cancel';
+                                event.target.classList.replace('btn-primary', 'btn-danger');
+                                Swal.fire('Copied!', `Coupon "${couponCode}" copied successfully.`, 'success');
+                            })
+                            .catch(err => console.error('Failed to copy coupon code', err));
+                    } else if (event.target.textContent === 'Cancel') {
+
+                        document.getElementById('discount-amount').textContent = '0.00';
+                        document.getElementById('total-price').textContent = document.getElementById('actual-price').textContent;
+
+
+                        event.target.textContent = 'Copy';
+                        event.target.classList.replace('btn-danger', 'btn-primary');
+                        appliedCoupon = null;
+                        let appliedCouponId = null;
+
+                        Swal.fire('Cancelled!', 'Coupon discount removed.', 'info');
+                    }
+                }
+            });
+
+
+            document.getElementById('apply-coupon-btn').addEventListener('click', async () => {
+                const couponCode = document.getElementById('coupon-code').value.toUpperCase();
+                const coupons = await fetchCoupons();
+                const totalPrice = parseFloat(document.getElementById('total-price').textContent);
+
+                if (appliedCoupon) {
+                    Swal.fire('Error', 'A coupon has already been applied.', 'error');
+                    return;
+                }
+
+                const coupon = coupons.find(c => c.couponCode === couponCode);
+
+                if (coupon) {
+                    if (totalPrice >= coupon.minimumPrice) {
+                        let discount = 0;
+
+                        if (coupon.type === 'flatDiscount') {
+                            discount = coupon.discount;
+                        } else if (coupon.type === 'percentageDiscount') {
+                            discount = Math.min(totalPrice * (coupon.discount / 100), coupon.maxRedeem || totalPrice);
+                        }
+
+                        const newTotal = Math.max(0, totalPrice - discount);
+                        document.getElementById('discount-amount').textContent = discount.toFixed(2);
+                        document.getElementById('total-price').textContent = newTotal.toFixed(2);
+                        appliedCoupon = couponCode;
+                        appliedCouponId = coupon._id;
+
+                        Swal.fire('Success!', `Coupon applied! You saved ₹${discount.toFixed(2)}.`, 'success');
+                    } else {
+                        Swal.fire('Error', `Coupon not eligible. Minimum amount for this coupon is ₹${coupon.minimumPrice}.`, 'error');
+                    }
+                } else {
+                    Swal.fire('Error', 'Invalid coupon code.', 'error');
+                }
+            });
+            function renderCart(cartItems) {
+                const cartContainer = document.getElementById('cart-items');
+                const actualPriceContainer = document.getElementById('actual-price');
+                const discountContainer = document.getElementById('discount-amount');
+                const totalPriceContainer = document.getElementById('total-price');
+                const cashOnDeliveryOption = document.getElementById('cashOnDelivery');
+                const razorpayOption = document.getElementById('razorpay');
+                const codMessageContainer = document.getElementById('cod-message');
+                const deliveryChargeContainer = document.getElementById('delivery-charge');
+                let totalPrice = 0;
+                const deliveryCharge = 150;
+
+                cartContainer.innerHTML = '';
+                cartItems.forEach(item => {
+                    console.log(item._id);
+                    const orderId = item._id;
+                    orderIds = item._id;
+                    const { productId, size, count, totalPrice: itemTotal, actualPrice } = item;
+                    const product = productId;
+                    totalPrice += itemTotal;
+
+                    cartContainer.innerHTML += `
+            <div class="d-flex align-items-center border p-3 mb-3">
+                <div class="me-3">
+                    <img src="http://manmode.uno/${product.images[0].replace('uploads', '')}" alt="${product.name}" style="width: 100px; height: 100px;" onerror="this.src='/fallback-image.jpg'">
+                </div>
+                <div>
+                    <h6>${product.name}</h6>
+                    <p>Price: ₹${actualPrice}</p>
+                    <p>Size: ${size}</p>
+                    <p>Count: ${count}</p>
+                    <p>Total: ₹${itemTotal}</p>
+                </div>
+            </div>`;
+                });
+                totalPrice += deliveryCharge;
+
+                actualPriceContainer.textContent = (totalPrice - deliveryCharge).toFixed(2);
+                discountContainer.textContent = '0.00';
+                deliveryChargeContainer.textContent = deliveryCharge.toFixed(2);
+                totalPriceContainer.textContent = totalPrice.toFixed(2);
+
+
+
+
+                if (totalPrice < 1000) {
+
+                    cashOnDeliveryOption.parentElement.style.display = 'none';
+                    razorpayOption.checked = true;
+                    codMessageContainer.textContent = 'Cash on Delivery is only available for purchases above ₹1000.';
+                } else {
+                    cashOnDeliveryOption.parentElement.style.display = 'block';
+                    codMessageContainer.textContent = '';
+                }
+            }
+
+
+
+
+
+
+
+
+            document.addEventListener('DOMContentLoaded', fetchCart);
+
+
+            function fetchCheckoutDetails() {
+
+                const viewAddressesDiv = document.getElementById("viewAddressesDiv");
+                const editAddressDiv = document.getElementById("EditAddressDiv");
+                const editAddressForm = document.getElementById("editaddressForm");
+                const addressContainer = document.createElement("div");
+                addressContainer.classList.add("address-container");
+
+                fetch('/checkoutdetails')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+
+
+                        const user = data.user;
+                        const addresses = data.addresses;
+                        console.log("address", addresses);
+                        if (user) {
+                            document.getElementById('user-name').textContent = `Name: ${user.name}`;
+                            document.getElementById('user-email').textContent = `Email: ${user.email}`;
+                            document.getElementById('user-phone').textContent = `Phone: ${user.number}`;
+                            document.getElementById('user-image').src = user.image
+                                ? `http://manmode.uno/uploaded-images/${user.image.replace('uploads', '')}`
+                                : '/images/user.webp';
+
+                        } else {
+                            document.getElementById('user-details').innerHTML = 'User details not found.';
+                        }
+
+
+                        const addressList = document.getElementById('address-list');
+                        if (addresses.length === 0) {
+                            addressList.innerHTML = '<p>No addresses available</p>';
+                        } else {
+                            addressList.innerHTML = '';
+                            addresses.forEach((address, index) => {
+
+                                console.log("itrating the address", address);
+                                const addressDiv = document.createElement('div');
+                                addressDiv.classList.add('form-check', 'mb-2', 'address');
+
+                                addressDiv.innerHTML = `
+        <input 
+            class="form-check-input" 
+            type="radio" 
+            name="selectedAddress" 
+            id="${address._id}" 
+            value="${address._id}" 
+            ${address.isDefault || index === 0 ? 'checked' : ''}>
+        <label class="form-check-label" for="address${index}">
+            ${address.locality}, ${address.address}, ${address.state}, ${address.zipCode}
+            ${address.isDefault ? '<span class="text-success"> (Default Address)</span>' : ''}
+        </label>
+        <button class="btn btn-warning btn-sm edit-btn" data-id="${address._id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="${address._id}">Delete</button>
+    `;
+                                addressList.appendChild(addressDiv);
+                                console.log("Appended addressDiv:", addressDiv);
+
+                            });
+
+                            addressList.querySelectorAll(".edit-btn").forEach((btn) => {
+                                btn.addEventListener("click", async (event) => {
+                                    addAddressDiv.style.display = 'none';
+                                    editAddressDiv.style.display = 'block'
+                                    const addressId = event.target.dataset.id;
+                                    console.log("Edit address with ID:", addressId);
+
+                                    try {
+                                        const response = await fetch(`/get-user-address/${addressId}`);
+                                        const address = await response.json();
+
+                                        if (response.ok) {
+
+                                            editAddressForm.name.value = address.name || "";
+                                            editAddressForm.phone.value = address.phone || "";
+                                            editAddressForm.pincode.value = address.zipCode || "";
+                                            editAddressForm.locality.value = address.locality || "";
+                                            editAddressForm.address.value = address.address || "";
+                                            editAddressForm.city.value = address.city || "";
+                                            editAddressForm.state.value = address.state || "";
+                                            editAddressForm.landmark.value = address.landmark || "";
+                                            editAddressForm.altPhone.value = address.altPhone || "";
+
+
+                                            editAddressDiv.style.display = "block";
+
+                                            addAddressDiv.style.display = "none";
+
+
+                                            const updateButton = document.getElementById("updateButton");
+                                            updateButton.onclick = async (e) => {
+                                                e.preventDefault();
+
+                                                const updatedAddress = {
+                                                    name: editAddressForm.name.value,
+                                                    phone: editAddressForm.phone.value,
+                                                    zipCode: editAddressForm.pincode.value,
+                                                    locality: editAddressForm.locality.value,
+                                                    address: editAddressForm.address.value,
+                                                    city: editAddressForm.city.value,
+                                                    state: editAddressForm.state.value,
+                                                    landmark: editAddressForm.landmark.value,
+                                                    altPhone: editAddressForm.altPhone.value,
+                                                };
+
+                                                try {
+                                                    const updateResponse = await fetch(`/update-user-address/${addressId}`, {
+                                                        method: "PUT",
+                                                        headers: {
+                                                            "Content-Type": "application/json",
+                                                        },
+                                                        body: JSON.stringify(updatedAddress),
+                                                    });
+
+                                                    const updateResult = await updateResponse.json();
+                                                    if (updateResponse.ok) {
+                                                        alert("Address updated successfully!");
+
+                                                        editAddressDiv.style.display = "none";
+                                                        addAddressDiv.style.display = "none";
+                                                        await fetchCheckoutDetails();
+                                                    } else {
+                                                        alert(updateResult.error || "Failed to update the address.");
+                                                    }
+                                                } catch (error) {
+                                                    console.error("Error updating address:", error);
+                                                    alert("An error occurred while updating the address.");
+                                                }
+                                            };
+                                        } else {
+                                            alert(address.error || "Failed to fetch address details.");
+                                        }
+                                    } catch (error) {
+                                        console.error("Error fetching address details:", error);
+                                        alert("An error occurred while fetching address details.");
+                                    }
+                                });
+                            });
+
+
+
+
+                            addressList.querySelectorAll(".delete-btn").forEach((btn) => {
+                                btn.addEventListener("click", async (event) => {
+                                    const addressId = event.target.dataset.id;
+                                    console.log("Delete address with ID:", addressId);
+
+                                    const confirmDelete = confirm("Are you sure you want to delete this address?");
+                                    if (!confirmDelete) return;
+
+                                    try {
+                                        const response = await fetch(`/delete-user-address/${addressId}`, {
+                                            method: "DELETE",
+                                            headers: {
+                                                "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                                            },
+                                        });
+
+                                        const result = await response.json();
+
+                                        if (response.ok) {
+                                            alert(result.message || "Address deleted successfully.");
+                                            event.target.closest(".address").remove();
+                                            await fetchCheckoutDetails();
+                                        } else {
+                                            alert(result.error || "Failed to delete the address.");
+                                        }
+                                    } catch (error) {
+                                        console.error("Error deleting address:", error);
+                                        alert("An error occurred while deleting the address.");
+                                    }
+                                });
+                            });
+
+
+
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching checkout details:', error);
+                    });
+            }
+
+          
+          
+          
+            window.onload = fetchCheckoutDetails;
+
+            document.getElementById('place-order-button').addEventListener('click', async () => {
+
+                const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+                if (!selectedAddress) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Please select an address before placing the order.',
+                    });
+                    return;
+                }
+
+                const addressId = selectedAddress.value;
+
+
+                const totalPriceText = document.getElementById('total-price').textContent;
+                const ActualtotalPriceText = document.getElementById('actual-price').textContent.replace('Actual Price: ₹', '');
+                const discount = document.getElementById('discount-amount').textContent.replace('Discount: ₹', '');
+                const shippingFee = document.getElementById('delivery-charge').textContent.replace('Delivery Charge: ₹', '');
+
+                const totalPrice = parseFloat(totalPriceText.replace('Total Price: ₹', ''));
+
+                console.log(totalPriceText,ActualtotalPriceText,discount,shippingFee);
+                
+
+
+                const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+                if (!selectedPaymentMethod) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Please select a payment method.',
+                    });
+                    return;
+                }
+
+                const paymentMethod = selectedPaymentMethod.value;
+
+                const isWalletPayment = document.getElementById('wallet').checked;
+
+                if (isWalletPayment) {
+
+                    try {
+                        const walletResponse = await fetch('/get-wallet');
+                        const walletData = await walletResponse.json();
+                        console.log("walletData", walletData);
+
+                        const walletBalance = walletData.balance;
+
+                        if (walletBalance < totalPrice) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Insufficient Wallet Balance',
+                                text: 'You do not have enough balance in your wallet.',
+                            });
+                            return;
+                        }
+
+
+                        const updatedWalletBalance = walletBalance - totalPrice;
+
+
+                        const updateWalletResponse = await fetch('/update-wallet', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                newBalance: updatedWalletBalance,
+                            }),
+                        });
+
+                        const updateWalletData = await updateWalletResponse.json();
+                        if (!updateWalletResponse.ok) {
+                            throw new Error(updateWalletData.message || 'Failed to update wallet balance.');
+                        }
+
+                        console.log('Wallet updated successfully:', updateWalletData);
+                    } catch (error) {
+                        console.error('Error checking or updating wallet:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to process wallet payment. Please try again.',
+                        });
+                        return;
+                    }
+                }
+
+                try {
+                    if (paymentMethod === 'Razorpay') {
+                        const razorpayOrderResponse = await fetch('/createRazorpayOrder', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: totalPrice }),
+                        });
+
+                        const razorpayOrderData = await razorpayOrderResponse.json();
+                        if (!razorpayOrderResponse.ok) {
+                            throw new Error(razorpayOrderData.message || 'Failed to create Razorpay order.');
+                        }
+
+                        const options = {
+                            key: 'rzp_test_nFGQUv9h5ezSv8',
+                            amount: razorpayOrderData.amount,
+                            currency: 'INR',
+                            name: 'Your Store',
+                            description: 'Order Payment',
+                            order_id: razorpayOrderData.id,
+                            handler: async (response) => {
+
+                                const orderData = {
+                                    addressId,
+                                    orderIds,
+                                    totalPrice,
+                                    ActualtotalPriceText,
+                                    paymentMethod,
+                                    discount,
+                                    shippingFee,
+                                    appliedCouponId,
+                                };
+
+                                console.log('Payment successful:', orderData);
+
+                                try {
+                                    const captureResponse = await fetch('/capturePayment', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                        }),
+                                    });
+
+                                    const captureData = await captureResponse.json();
+                                    if (!captureResponse.ok) {
+                                        throw new Error(captureData.message || 'Failed to capture payment.');
+                                    }
+
+                                    console.log('Payment captured successfully:', captureData);
+
+                                    const orderResponse = await fetch('/placeorder', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(orderData),
+                                    });
+
+                                    const orderResponseData = await orderResponse.json();
+                                    if (!orderResponse.ok) {
+                                        throw new Error(orderResponseData.message || 'Failed to place the order.');
+                                    }
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Order Placed',
+                                        text: 'Your order has been placed successfully!',
+                                        confirmButtonText: 'Go to My Orders',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.href = '/userorders';
+                                        }
+                                    });
+                                } catch (error) {
+                                    console.error('Error during order placement:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: error.message || 'Failed to place the order.',
+                                    });
+                                }
+                            },
+                            modal: {
+                                ondismiss: async () => {
+
+                                    const orderData = {
+                                        addressId,
+                                    orderIds,
+                                    totalPrice,
+                                    ActualtotalPriceText,
+                                    paymentMethod,
+                                    discount,
+                                    shippingFee,
+                                    appliedCouponId,
+                                    };
+
+                                    console.log('Payment dismissed, marking order as failed');
+                                    try {
+                                        const response = await fetch('/paymentFailed', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify(orderData),
+                                        });
+
+                                        const responseData = await response.json();
+                                        if (!response.ok) {
+                                            throw new Error(responseData.message || 'Failed to handle payment failure.');
+                                        }
+
+
+
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Payment Failed',
+                                            text: 'Your payment was not successful, but the order has been saved. Please try again.',
+
+                                            confirmButtonText: 'Go to My Orders',
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                window.location.href = '/userorders';
+                                            }
+                                        });
+                                    } catch (error) {
+                                        console.error('Error handling payment failure:', error);
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: error.message || 'Failed to process payment failure.',
+                                        });
+                                    }
+                                },
+                            },
+                            prefill: {
+                                name: 'Customer Name',
+                                email: 'customer@example.com',
+                                contact: '9999999999',
+                            },
+                            theme: { color: '#3399cc' },
+                        };
+
+                        const razorpay = new Razorpay(options);
+                        razorpay.open();
+
+                    } else {
+
+                        const orderData = {
+                            addressId,
+                            orderIds,
+                            totalPrice,
+                            ActualtotalPriceText,
+                            paymentMethod,
+                            discount,
+                            shippingFee,
+                            appliedCouponId,
+                        };
+
+                        const response = await fetch('/placeorder', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(orderData),
+                        });
+
+                        const responseData = await response.json();
+                        if (!response.ok) {
+                            throw new Error(responseData.message || 'Failed to place order.');
+                        }
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed',
+                            text: 'Your order has been placed successfully!',
+                            confirmButtonText: 'Go to My Orders',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/userorders';
+                            }
+                        });
+
+                    }
+                } catch (error) {
+
+
+
+                    console.error('Error placing order or initiating payment:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to place the order. Please try again.',
+                    });
+                }
+            });
+
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="/js/nav.js"></script>
+</body>
+
+</html>

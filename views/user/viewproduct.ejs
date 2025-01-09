@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="./css1/home.css">
+    <link rel="stylesheet" href="./css1/viewproduct.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/magiczoom/magiczoom.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/magiczoom/magiczoom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+
+    <style>
+        .product-images {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-image {
+            position: relative;
+        }
+
+        .zoom-container {
+            overflow: hidden;
+        }
+
+        .main-img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.2s ease;
+
+        }
+
+        .zoom-container:hover .main-img {
+            transform: scale(1.5);
+
+        }
+
+
+        .review-card {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .user-image {
+            width: 80px;
+            height: 80px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .user-review {
+            font-style: italic;
+            margin: 10px 0;
+        }
+
+        .user-rating {
+            color: gold;
+        }
+
+        .size-btn {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .size-btn.selected-size {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .product-display {
+            height: auto;
+            /* background-color: #efecec; */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .detialss {
+            width: 70%;
+            height: auto;
+        }
+
+        @media (max-width: 1627px) {
+
+            .product-display {
+                display: block;
+                width: 100%;
+            }
+
+            .product-details {
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 998px) {
+
+
+            .main-img {
+                width: 300px;
+            }
+
+            .thumbnail {
+                height: 60px;
+                width: 60px;
+            }
+
+            .product-details {
+                width: 100%;
+            }
+
+            .detialss {
+                width: 100%;
+            }
+
+            .review-input-container {
+                display: block;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+            }
+
+            .review-input-container input {
+                width: 100%;
+            }
+        }
+
+
+        @media (max-width: 405px) {
+
+
+            .main-img {
+                width: 250px;
+            }
+
+            .thumbnail {
+                height: 50px;
+                width: 50px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <%- include('./common-ele/nav') %>
+
+
+        <section style="display: flex; width: 100%; justify-content: center;">
+            <section class="detialss" style=" ">
+
+
+                <section class="product-display" style="">
+                    <div class="product-images">
+                        <div class="thumbnail-images"></div>
+                        <div class="main-image">
+                            <div class="zoom-container">
+                                <img src="" alt="Main Product Image" id="mainImage" class="main-img" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="product-details">
+                        <h2>Product Title</h2>
+                        <p>Description of the product goes here. This section can contain any details related to the
+                            product.</p>
+                        <p><strong>Price: </strong></p>
+                        <p class="discount-info" style="display: none;"></p>
+
+
+                        <p class="brand-name"><strong>Brand: Example Brand</strong></p>
+
+                        <div class="size-selection">
+                            <label for="size">Choose Size: </label>
+                            <div class="size-buttons">
+
+                            </div>
+                        </div>
+
+                        <p class="no-stock-message" style="display: none; color: red;">No stock available</p>
+                        <div class="action-buttons">
+                            <button class="action-btn add-to-cart" data-id="PRODUCT_ID">Add to Cart</button>
+                            <button class="action-btn add-to-wishlist" data-id="PRODUCT_ID">Add to Wishlist</button>
+                        </div>
+
+
+                    </div>
+                </section>
+
+
+
+                <section class="customer-review-section">
+                    <div class="section-title">
+                        <h2>What Customers Say's</h2>
+                    </div>
+
+
+                    <div id="reviewsCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+                        <div class="carousel-inner" id="reviewsContainer">
+
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#reviewsCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#reviewsCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+
+
+                    <div class="review-input-container">
+                        <input type="text" placeholder="Write your review here..." class="review-input"
+                            id="reviewInput">
+                        <div class="stars" id="starsContainer">
+
+                            <span data-value="1">☆</span>
+                            <span data-value="2">☆</span>
+                            <span data-value="3">☆</span>
+                            <span data-value="4">☆</span>
+                            <span data-value="5">☆</span>
+                        </div>
+                        <button class="send-btn" id="sendReview">Send</button>
+                    </div>
+                </section>
+
+                <section class="similar-products-section">
+                    <h2>Similar Products:</h2>
+                    <div class="products-container" id="similarProductsContainer">
+                        <div class="product-card">
+                            <a href="/viewuser?id=product_id" class="product-link">
+                                <img src="http://manmode.uno/images/product.jpg" alt="Product Name"
+                                    class="product-image">
+                                <h3 class="product-name">Product Name</h3>
+                                <p class="product-price">₹100.00</p>
+                            </a>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </section>
+        </section>
+
+
+        <%- include('./common-ele/footer') %>
+
+
+            <script>
+
+
+
+
+
+                const starsContainer = document.getElementById('starsContainer');
+                const reviewInput = document.getElementById('reviewInput');
+                const sendReview = document.getElementById('sendReview');
+                let selectedStars = 0;
+
+                // stars selection
+                starsContainer.addEventListener('click', (event) => {
+                    if (event.target.tagName === 'SPAN') {
+                        selectedStars = parseInt(event.target.dataset.value);
+                        Array.from(starsContainer.children).forEach((star, index) => {
+                            star.textContent = index < selectedStars ? '⭐' : '☆';
+                            star.style.color = index < selectedStars ? 'yellow' : 'black';
+                        });
+                    }
+                });
+
+
+                // Submit review
+                const reviewsContainer = document.getElementById('reviewsContainer');
+
+                sendReview.addEventListener('click', () => {
+                    const reviewText = reviewInput.value.trim();
+                    if (selectedStars === 0 || !reviewText) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Please select a star rating and enter a review.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                        });
+                        return;
+                    }
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const productId = urlParams.get('id');
+
+                    if (!productId) {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Product ID is missing!',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                        });
+                        return;
+                    }
+                    fetch('/senduserreviews', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            productId: productId,
+                            rating: selectedStars,
+                            review: reviewText,
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Review submitted successfully:', data);
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Review submitted successfully!',
+                                icon: 'success',
+                                confirmButtonText: 'OK',
+                            });
+                            // window.location.reload();
+                            fetchReviews()
+                        })
+                        .catch(error => {
+                            console.error('Error submitting review:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to submit review. Please try again later.',
+                                icon: 'error',
+                                confirmButtonText: 'OK',
+                            });
+                        });
+
+
+                    reviewInput.value = '';
+                    selectedStars = 0;
+                    Array.from(starsContainer.children).forEach(star => {
+                        star.textContent = '☆';
+                        star.style.color = 'black';
+                    });
+                });
+
+
+                async function fetchReviews() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const productId = urlParams.get('id');
+
+                    try {
+                        const response = await fetch(`/getreviews?productId=${productId}`);
+                        const data = await response.json();
+                        console.log("data", data);
+
+
+
+                        if (response) {
+                            displayReviews(data.reviews);
+
+                        } else {
+                            reviewsContainer.innerHTML = `<p>${data.message || 'Failed to load reviews.'}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching reviews:', error);
+                        reviewsContainer.innerHTML = `<p>An error occurred. Please try again later.</p>`;
+                    }
+                }
+
+                // Display reviews
+                function displayReviews(reviews) {
+                    const reviewsContainer = document.getElementById('reviewsContainer');
+
+                    if (reviews.length === 0) {
+                        reviewsContainer.innerHTML = `<div class="carousel-item active"><p class="text-center">No reviews yet.</p></div>`;
+                        return;
+                    }
+
+                    const groupedReviews = [];
+                    for (let i = 0; i < reviews.length; i += 3) {
+                        groupedReviews.push(reviews.slice(i, i + 3));
+                    }
+
+                    reviewsContainer.innerHTML = groupedReviews
+                        .map((group, index) => `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                <div class="row justify-content-center">
+                    ${group
+                                .map(
+                                    (review) => `
+                            <div class="col-md-4">
+                                <div class="review-card text-center p-3">
+                                    <img src="http://manmode.uno/uploaded-images/${review.userId.image.replace('uploads', '')}" alt="User Image" class="user-image mb-3 rounded-circle">
+                                    <h4 class="user-name">${review.userId.name || 'Anonymous'}</h4>
+                                    <p class="user-review">"${review.review}"</p>
+                                    <div class="user-rating">${'⭐'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                                </div>
+                            </div>
+                        `
+                                )
+                                .join('')}
+                </div>
+            </div>
+        `)
+                        .join('');
+                }
+                document.addEventListener('DOMContentLoaded', fetchReviews);
+
+
+
+
+
+
+                function changeImage(imageSrc) {
+                    const mainImage = document.getElementById("mainImage");
+                    mainImage.src = imageSrc;
+                }
+
+
+
+                // fetching the product details
+                async function fetchProductDetails() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const productId = urlParams.get('id');
+                    console.log("Extracted Product ID:", productId);
+
+                    if (!productId) {
+                        console.error("No Product ID found in URL.");
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/viewuser/${productId}`);
+                        const data = await response.json();
+
+                        console.log("dataaaaaa", data);
+
+
+                        if (response.ok) {
+                            console.log("Product Data:", data);
+                            const catId = data.category._id;
+                            console.log("Category ID:", catId);
+
+                            fetchSimilarProducts(catId);
+                            if (data.userId) {
+                                await checkWishlistStatus(productId);
+                            }
+                            displayProductDetails(data);
+
+                            return catId;
+                        } else {
+                            console.error("Error fetching product details:", data.message);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+                }
+
+
+                function displayProductDetails({ product, brand, isWishlisted, userId }) {
+
+                    document.querySelector(".product-details h2").innerText = product.name;
+                    const descriptionElem = document.querySelector(".product-details p:first-of-type");
+                    descriptionElem.innerText = product.description;
+
+
+                    const priceElem = document.querySelector(".product-details p strong");
+                    if (product.basePrice > product.offerPrice) {
+                        const discount = product.basePrice - product.offerPrice;
+                        priceElem.innerHTML = `Price: <span style="color: red; text-decoration: line-through;">₹${product.basePrice}</span> ₹${product.offerPrice}`;
+                        const discountElem = document.querySelector(".discount-info");
+                        discountElem.innerText = `${discount} off`;
+                        discountElem.style.display = 'block';
+                    } else {
+                        priceElem.innerText = `Price: ₹${product.offerPrice}`;
+                        const discountElem = document.querySelector(".discount-info");
+                        discountElem.style.display = 'none';
+                    }
+
+                    const brandElem = document.querySelector(".brand-name strong");
+                    brandElem.innerText = `Brand: ${brand.name}`;
+
+
+                    const sizeButtonsContainer = document.querySelector(".size-buttons");
+                    sizeButtonsContainer.innerHTML = "";
+
+
+                    const noStockMessage = document.querySelector(".no-stock-message");
+                    const addToCartButton = document.querySelector(".add-to-cart");
+                    const sizeSelectionSection = document.querySelector(".size-selection");
+                    const addToWishlistButton = document.querySelector(".add-to-wishlist");
+
+                    const mainImage = document.querySelector("#mainImage");
+                    const mainImagePath = product.images[0].replace("uploads", "");
+                    mainImage.src = `http://manmode.uno/${mainImagePath}`;
+                    mainImage.alt = product.name;
+
+
+                    const thumbnailsContainer = document.querySelector(".thumbnail-images");
+                    thumbnailsContainer.innerHTML = "";
+                    product.images.forEach((image, index) => {
+                        const thumbnailPath = image.replace("uploads", "");
+                        const imgElement = document.createElement("img");
+                        imgElement.src = `http://manmode.uno/${thumbnailPath}`;
+                        imgElement.alt = `Thumbnail ${index + 1}`;
+                        imgElement.classList.add("thumbnail");
+                        imgElement.onclick = () => changeImage(`http://manmode.uno/${thumbnailPath}`);
+                        thumbnailsContainer.appendChild(imgElement);
+                    });
+
+
+
+                    if (!userId) {
+                        addToWishlistButton.style.display = 'none';
+                        addToCartButton.style.display = "none";
+                        sizeSelectionSection.style.display = "none";
+                        return;
+                    }
+
+                    console.log("product.stock", product.stock);
+
+                    if (product.stock === 0) {
+                        noStockMessage.style.display = "block";
+                        addToCartButton.style.display = "none";
+                        sizeSelectionSection.style.display = "none";
+                    } else {
+
+                        noStockMessage.style.display = "none";
+
+                        addToCartButton.style.display = "block";
+                        sizeSelectionSection.style.display = "block";
+
+
+                        for (const [size, stock] of Object.entries(product.sizes)) {
+                            if (stock > 0) {
+                                const button = document.createElement("button");
+                                button.classList.add("size-btn");
+                                button.innerText = size;
+
+
+                                button.addEventListener("click", () => {
+                                    const allSizeButtons = document.querySelectorAll(".size-btn");
+                                    allSizeButtons.forEach(btn => btn.classList.remove("selected-size"));
+                                    button.classList.add("selected-size");
+                                });
+
+                                sizeButtonsContainer.appendChild(button);
+                            }
+                        }
+                    }
+
+                    if (userId) {
+
+
+                        const newAddToCartButton = addToCartButton.cloneNode(true);
+                        addToCartButton.parentNode.replaceChild(newAddToCartButton, addToCartButton);
+
+                        newAddToCartButton.addEventListener("click", () => {
+                            const selectedSizeButton = document.querySelector(".size-btn.selected-size");
+
+                            if (!selectedSizeButton) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Oops!',
+                                    text: 'Please select a size before adding to cart.',
+                                    confirmButtonText: 'Okay',
+                                });
+                                return;
+                            }
+
+                            const selectedSize = selectedSizeButton.innerText;
+
+                            fetch("/addtocart", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ productId: product._id, size: selectedSize }),
+                            })
+
+
+
+                                .then(response => {
+                                    if (response.ok) {
+                                        console.log("response", response);
+                                        return response.json();
+                                    } else {
+                                        throw new Error("Failed to add to cart.");
+                                    }
+                                })
+
+
+                                .then(data => {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Added to Cart',
+                                        text: 'Product added to cart successfully!',
+                                        confirmButtonText: 'Great!',
+                                    });
+                                    const allSizeButtons = document.querySelectorAll(".size-btn");
+                                    allSizeButtons.forEach(button => button.classList.remove("selected-size"));
+                                })
+                                .catch(error => {
+                                    console.error("Error:", error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: error.message || 'Failed to add to cart.',
+                                        confirmButtonText: 'Try Again',
+                                    });
+                                });
+                        });
+
+                    }
+
+
+                }
+
+
+
+                async function checkWishlistStatus(productId) {
+                    try {
+                        const response = await fetch(`/checkwishlist/${productId}`);
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            console.log("Wishlist Status:", data.isWishlisted);
+                            setupWishlistButton(productId, data.isWishlisted);
+                        } else {
+                            console.error("Failed to fetch wishlist status:", data.message);
+                        }
+                    } catch (error) {
+                        console.error("Error checking wishlist status:", error);
+                    }
+                }
+
+                function setupWishlistButton(productId, isWishlisted) {
+                    const wishlistButton = document.querySelector(".add-to-wishlist");
+                    const newWishlistButton = wishlistButton.cloneNode(true);
+                    wishlistButton.parentNode.replaceChild(newWishlistButton, wishlistButton);
+                    newWishlistButton.innerText = isWishlisted ? "Remove from Wishlist" : "Add to Wishlist";
+
+                    newWishlistButton.setAttribute("data-id", productId);
+                    newWishlistButton.addEventListener("click", () => toggleWishlist(productId));
+                }
+
+                // wishlist
+                function toggleWishlist(productId) {
+                    const wishlistButton = document.querySelector(".add-to-wishlist");
+                    const isRemoving = wishlistButton.innerText === "Remove from Wishlist";
+
+                    const url = isRemoving
+                        ? `/removewishlist`
+                        : `/addwishlist`;
+                    fetch(url, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ productId }),
+                    })
+                        .then(response => {
+                            console.log(response);
+
+                            if (response.ok) {
+                                return response.json();
+                            } else {
+                                throw new Error("Failed to update wishlist.");
+                            }
+                        })
+                        .then(data => {
+                            wishlistButton.innerText = isRemoving ? "Add to Wishlist" : "Remove from Wishlist";
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("Failed to update wishlist.");
+                        });
+                }
+
+
+                let isAddToCartListenerSet = false;
+
+
+
+
+                fetchProductDetails();
+
+
+
+
+                function changeImage(imageUrl) {
+                    const mainImage = document.querySelector("#mainImage");
+                    const mainImageLink = document.querySelector("#mainImageLink");
+
+                    mainImage.src = imageUrl;
+                    mainImageLink.href = imageUrl;
+
+                    MagicZoom.refresh();
+                }
+                fetchProductDetails();
+
+
+                async function fetchSimilarProducts(categoryId) {
+                    try {
+                        console.log("similar products category ", categoryId);
+
+                        const response = await fetch(`/getsimilarproducts/${categoryId}`);
+                        const products = await response.json();
+                        console.log("qqqqqqq", products);
+
+
+                        if (response.ok) {
+                            console.log("Similar Products:", products);
+                            displaySimilarProducts(products);
+                        } else {
+                            console.error("Error fetching similar products:", products.message);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+                }
+
+
+                function displaySimilarProducts(products) {
+                    const container = document.getElementById("similarProductsContainer");
+                    container.innerHTML = "";
+
+                    const currentProductId = new URLSearchParams(window.location.search).get('id');
+                    const filteredProducts = products.filter(product => product._id !== currentProductId);
+
+                    filteredProducts.forEach(product => {
+                        const productCard = document.createElement("div");
+                        productCard.className = "product-card";
+
+                        productCard.innerHTML = `
+            <a href="/viewuser?id=${product._id}" class="product-link">
+                <img src="http://manmode.uno/${product.images[0].replace('uploads', '')}" alt="${product.name}" class="product-image">
+                <h3 class="product-name">${product.name}</h3>   
+                <p class="product-price">₹${product.offerPrice}</p>
+            </a>
+        `;
+
+                        container.appendChild(productCard);
+                    });
+                }
+
+
+
+            </script>
+
+
+            <script src="/js/nav.js"></script>
+</body>
+
+</html>

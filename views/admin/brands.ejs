@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/admin/brands.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+</head>
+
+<body>
+
+    <%- include('./commonpages/sidebar') %>
+
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Brands</h1>
+            <button class="logout-button">Logout</button>
+        </div>
+
+   
+        <div class="dashboard-top">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-box" placeholder="Search brands...">
+            </div>
+            <div class="summary-boxes">
+                <div class="summary-box">
+                    <h3>Total Brands</h3>
+                    <p>120</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Active Brands</h3>
+                    <p>98</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Inactive Brands</h3>
+                    <p>22</p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="button-wrapper">
+            <button class="view-brands-button">View Brands</button>
+            <button class="add-brand-button" id="add-brand-button">Add Brand</button>
+        </div>
+
+
+        <form id="add-brand-form-element" style="display: none;">
+            <label for="brand-name">Brand Name:</label>
+            <input type="text" id="brand-name" name="brand-name" placeholder="Enter brand name" required>
+
+            <label for="brand-image">Upload Photo:</label>
+            <input type="file" id="brand-image" name="brand-image" accept="image/*" required>
+
+
+  
+            <div id="image-preview" class="image-preview">
+                <img id="preview-img" src="" alt="Image Preview" />
+            </div>
+
+            <button type="button" id="submit-brand-button">Add Brand</button>
+        </form>
+
+
+<!-- Edit -->
+
+        <form id="edit-brand-form" style="display: none;">
+            <input type="hidden" id="edit-brand-id"> 
+            <input type="text" id="edit-brand-name" placeholder="Brand Name" required>
+            <input type="file" id="edit-brand-image" name="brand-image" accept="image/*">
+            <img id="edit-brand-preview" style="display: none;" alt="Image preview"> 
+            <button type="submit">Update Brand</button>
+        </form>
+
+
+        <div class="user-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Brand Name</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="brand-table-body">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+
+// Fetching the brands
+        async function fetchAndRenderBrands() {
+            try {
+                const response = await fetch('/admin/getbrands');
+                const data = await response.json();
+                console.log(data);
+                
+
+                document.querySelector('.summary-boxes .summary-box:nth-child(1) p').textContent = data.counts.total;
+                document.querySelector('.summary-boxes .summary-box:nth-child(2) p').textContent = data.counts.active;
+                document.querySelector('.summary-boxes .summary-box:nth-child(3) p').textContent = data.counts.blocked;
+
+                if (response.ok) {
+                    console.log(data);
+                    const brands = data.brands;
+                    const tbody = document.querySelector('#brand-table-body');
+                    tbody.innerHTML = '';
+                    brands.forEach((brand) => {
+                        const imagePath = brand.image.replace(/\\/g, '/').replace('uploads', '');
+
+
+
+                        const fullImageUrl = `http://manmode.uno/${imagePath}`;
+                        console.log(fullImageUrl);
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td><img src="${fullImageUrl}" alt="${brand.name}" class="user-image"></td>
+                    <td>${brand.name}</td>
+                    <td>
+                        <select class="status-select ${brand.isActive ? 'active' : 'blocked'}" onchange="updateBrandStatus('${brand._id}', this.value)">
+                            <option value="active" ${brand.isActive ? 'selected' : ''}>Active</option>
+                            <option value="blocked" ${!brand.isActive ? 'selected' : ''}>Blocked</option>
+                        </select>
+                    </td>
+                    <td>${new Date(brand.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <i class="fas fa-edit edit-icon" data-id="${brand._id}" data-name="${brand.name}" data-image="${fullImageUrl}"></i>
+                        <i class="fas fa-trash delete-icon" onclick="deleteBrand('${brand._id}')"></i>
+                    </td>
+                `;
+                        tbody.appendChild(row);
+                    });
+
+               
+                    const editIcons = document.querySelectorAll('.edit-icon');
+                    editIcons.forEach((icon) => {
+                        icon.addEventListener('click', (e) => {
+                            const brandId = e.target.getAttribute('data-id');
+                            const brandName = e.target.getAttribute('data-name');
+                            const brandImage = e.target.getAttribute('data-image');
+
+                      
+                            document.getElementById('edit-brand-id').value = brandId;
+                            document.getElementById('edit-brand-name').value = brandName;
+                            const editImagePreview = document.getElementById('edit-brand-preview');
+                            editImagePreview.src = brandImage;
+                            editImagePreview.style.display = 'block';
+
+                        
+                            document.getElementById('edit-brand-form').style.display = 'block';
+                            document.querySelector('.user-table').style.display = 'none';
+                        });
+                    });
+                } else {
+                    console.error('Failed to fetch brands:', data.message);
+                    alert(data.message || 'Error fetching brands');
+                }
+            } catch (error) {
+                console.error('Error fetching brands:', error);
+                alert('An error occurred while fetching the brand details.');
+            }
+        }
+
+    
+        fetchAndRenderBrands();
+
+
+
+        // editingg
+
+        document.getElementById('edit-brand-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const brandId = document.getElementById('edit-brand-id').value; 
+            const name = document.getElementById('edit-brand-name').value.trim();
+            const image = document.getElementById('edit-brand-image').files[0];
+
+            if (!name || !brandId) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Information',
+                    text: 'Please provide the brand name and ensure all fields are correctly filled.',
+                });
+                return;
+            }
+
+   
+            const formData = new FormData();
+            formData.append('brand-name', name);
+            if (image) {
+                formData.append('brand-image', image); 
+            }
+
+          
+            Swal.fire({
+                title: 'Updating Brand...',
+                text: 'Please wait while we update the brand details.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            try {
+           
+                const response = await fetch(`/admin/brands/${brandId}`, {
+                    method: 'PUT',
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Brand Updated Successfully!',
+                        text: result.message || 'The brand details were updated successfully.',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                      
+                        fetchAndRenderBrands();
+
+                    
+                        document.getElementById('edit-brand-form').reset();
+                        document.getElementById('edit-brand-form').style.display = 'none';
+                        document.querySelector('.user-table').style.display = 'block';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: result.message || 'Failed to update the brand details. Please try again.',
+                        confirmButtonText: 'Retry',
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating brand:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'There was an error connecting to the server. Please try again later.',
+                });
+            }
+        });
+       
+       
+       
+    //    update Brand status
+
+        async function updateBrandStatus(brandId, status) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to change the user status to ${status}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/brands/${brandId}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ isActive: status === 'active' }),
+                        });
+
+                        console.log(brandId);
+
+
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire(
+                                'Updated!',
+                                `User status has been updated to ${status}.`,
+                                'success'
+                            );
+                            fetchAndRenderBrands();
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to update user status. Please try again.',
+                                'error'
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error updating user status:', error);
+                        Swal.fire(
+                            'Error!',
+                            'An unexpected error occurred while updating the status.',
+                            'error'
+                        );
+                    }
+                }
+            });
+        }
+
+
+
+        // delete brand
+
+        async function deleteBrand(brandId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/brands/${brandId}`, { method: 'DELETE' });
+                        const data = await response.json();
+                        console.log(data);
+
+                        if (data) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The user has been deleted successfully.',
+                                'success'
+                            );
+                            fetchAndRenderBrands(); 
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to delete the user. Please try again.',
+                                'error'
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error deleting user:', error);
+                        Swal.fire(
+                            'Error!',
+                            'An unexpected error occurred.',
+                            'error'
+                        );
+                    }
+                }
+            });
+        }
+
+       
+        const addBrandButton = document.getElementById('add-brand-button');
+        const addBrandForm = document.getElementById('add-brand-form-element');
+        const userTable = document.querySelector('.user-table');
+        const viewBrandsButton = document.querySelector('.view-brands-button');
+        const editButton = document.getElementById('edit-button')
+        const editForm = document.getElementById('edit-brand-form');
+
+        addBrandButton.addEventListener('click', () => {
+            addBrandForm.style.display = 'block';
+            userTable.style.display = 'none';
+        });
+
+        viewBrandsButton.addEventListener('click', () => {
+            addBrandForm.style.display = 'none';
+            userTable.style.display = 'block';
+            editForm.style.display = "none"
+
+            fetchAndRenderBrands();
+        });
+
+        
+
+        // Adding brind
+
+        document.getElementById('submit-brand-button').addEventListener('click', async function (e) {
+    e.preventDefault();
+
+
+    const name = document.getElementById('brand-name').value;
+    const image = document.getElementById('brand-image').files[0];
+
+ 
+    const formData = new FormData();
+    formData.append('brand-name', name);  
+    formData.append('brand-image', image); 
+
+
+    if (!name.trim() || !image) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Information',
+            text: 'Please fill out the brand name and select an image before submitting!',
+        });
+        return;
+    }
+
+ 
+    Swal.fire({
+        title: 'Uploading...',
+        text: 'Please wait while your brand is being uploaded.',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+    });
+
+    try {
+       
+        const response = await fetch('/admin/brands', {
+            method: 'POST',
+            body: formData,
+        });
+
+        Swal.close();
+
+        if (response.ok) {
+            const result = await response.json();
+            Swal.fire({
+                icon: 'success',
+                title: 'Brand Uploaded Successfully',
+                text: result.message,
+            }).then(() => {
+            
+                location.reload();
+            });
+
+            console.log(result.brand); 
+
+
+            document.getElementById('brand-name').value = '';
+            document.getElementById('brand-image').value = '';
+        } else {
+            const errorResult = await response.json();
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: errorResult.message,
+            });
+        }
+    } catch (error) {
+       
+        Swal.close();
+        console.error("Error during the brand upload:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Network Error',
+            text: 'There was an error connecting to the server. Please try again later.',
+        });
+    }
+});
+
+
+
+
+        document.getElementById('brand-image').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const previewImage = document.getElementById('preview-img');
+            const imagePreviewBox = document.getElementById('image-preview');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block'; 
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.style.display = 'none';
+            }
+        });
+
+
+
+
+        // Search Field
+        document.getElementById('search-box').addEventListener('input', function (e) {
+            const searchQuery = e.target.value.toLowerCase(); 
+            const tableRows = document.querySelectorAll('#brand-table-body tr'); 
+
+            tableRows.forEach(row => {
+            
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = ''; 
+                } else {
+                    row.style.display = 'none'; 
+                }
+            });
+        });
+
+
+        // Logout
+
+        
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/admin/adminlogout', { method: 'POST' });
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Logged Out',
+                    text: 'You have been successfully logged out.',
+                    confirmButtonText: 'OK',
+                }).then(() => {
+                    window.location.href = '/admin'; 
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Logout Failed',
+                    text: 'Failed to log out. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        } catch (error) {
+            console.error('Error logging out:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Unexpected Error',
+                text: 'An unexpected error occurred. Please try again.',
+                confirmButtonText: 'OK',
+            });
+        }
+    });
+    
+
+    </script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

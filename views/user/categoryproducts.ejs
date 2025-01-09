@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>ManMode</title>
+  <link rel="stylesheet" href="./css1/home.css">
+  <link rel="stylesheet" href="./css1/viewproduct.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<style>
+  .advanced-search {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.advanced-search label {
+  margin-right: 10px;
+}
+
+.advanced-search select {
+  padding: 5px;
+  font-size: 14px;
+}
+
+
+
+
+
+
+
+
+</style>
+</head>
+<body>
+
+  <%- include('./common-ele/nav') %>
+
+
+
+<section style="display: flex; justify-content: end; margin: 20px 50px;">
+  <div class="advanced-search" style="width:200px">
+  
+    <select id="searchSort" class="form-select">
+      <option value="">select sort</option>
+      <option value="priceLowToHigh">Price: Low to High</option>
+      <option value="priceHighToLow">Price: High to Low</option>
+      <option value="averageRating">high rate to low rate</option>
+      <option value="newArrivals">New Arrivals</option>
+      <option value="aToZ">A - Z</option>
+      <option value="zToA">Z - A</option>
+    </select>
+  </div>
+</section>
+
+
+<section style=" display: flex; width: 100%; justify-content: center;">
+
+    <div style="width: 70%;">
+        <section class="similar-products-section">
+            <h2>Products:</h2>
+            <div class="products-container" id="similarProductsContainer">
+                <div class="product-card" style="height: 400px;">
+                    <a href="/viewuser?id=product_id" class="product-link">
+                        <img src="http://manmode.uno/images/product.jpg" alt="Product Name" class="product-image">
+                        <h3 class="product-name">Product Name</h3>
+                        <p class="product-price">₹100.00</p>
+                    </a>
+                </div>
+             
+            </div>
+            
+        </section>
+
+    </div>
+
+
+</section>
+
+
+<%- include('./common-ele/footer') %>
+<script>
+
+
+document.getElementById("searchSort").addEventListener("change", function() {
+  const sortOption = this.value;
+  sortProducts(sortOption);
+});
+
+
+function sortProducts(sortOption) {
+  let sortedProducts = [...products]; 
+
+  switch (sortOption) {
+    case "priceLowToHigh":
+      sortedProducts.sort((a, b) => a.offerPrice - b.offerPrice);
+      break;
+    case "priceHighToLow":
+      sortedProducts.sort((a, b) => b.offerPrice - a.offerPrice);
+      break;
+    case "averageRating":
+      sortedProducts.sort((a, b) => b.averageRating - a.averageRating);
+      break;
+    case "newArrivals":
+      sortedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      break;
+    case "aToZ":
+      sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "zToA":
+      sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    default:
+      break;
+  }
+
+  disProducts(sortedProducts); 
+}
+
+
+async function displayProducts() {
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('id');
+    const response = await fetch(`/getCategoryProducts/${categoryId}`);
+    // productsByCategory
+    const fetchedProducts = await response.json();
+    console.log("qqqqqqq", fetchedProducts);
+
+    if (response.ok) {
+      products = fetchedProducts;
+      disProducts(products);
+    } else {
+      console.error("Error fetching products:", fetchedProducts.message);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+
+function disProducts(products) {
+    console.log("Products received:", products);
+
+    
+    const container = document.getElementById("similarProductsContainer");
+    if (!container) {
+        console.error("Container for displaying products not found.");
+        return;
+    }
+
+    container.innerHTML = "";
+
+    if (!Array.isArray(products) || products.length === 0) {
+        container.innerHTML = "<p>No similar products found.</p>";
+        return;
+    }
+
+    products.forEach((product) => {
+     
+        const productCard = document.createElement("div");
+        productCard.classList.add("product-card");
+
+    
+        const productLink = document.createElement("a");
+        productLink.href = `/viewuser?id=${product._id}`;
+        productLink.classList.add("product-link");
+
+      
+        const imgUrl = product.images[0].replace('uploads', '');
+        const productName = product.name || "No name available";
+        const productPrice = product.offerPrice ;
+
+    
+        const img = document.createElement("img");
+        img.src = `http://manmode.uno/${imgUrl}`;
+        img.alt = productName;
+        img.classList.add("product-image");
+
+     
+        const name = document.createElement("h3");
+        name.classList.add("product-name");
+        name.innerText = productName;
+
+      
+        const price = document.createElement("p");
+        price.classList.add("product-price");
+        price.innerText = `₹${productPrice.toFixed(2)}`;
+
+   
+        productLink.appendChild(img);
+        productLink.appendChild(name);
+        productLink.appendChild(price);
+
+      
+        productCard.appendChild(productLink);
+
+        
+        container.appendChild(productCard);
+    });
+}
+
+
+displayProducts()
+
+</script>
+
+
+<script src="/js/nav.js"></script>
+  
+</body>
+</html>

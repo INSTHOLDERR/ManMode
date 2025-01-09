@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/admin/users.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" href="/admin/product.css">
+
+    <style>
+        #cropper-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .cropper-modal {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        #cropper-image {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #crop-button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #crop-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <%- include('./commonpages/sidebar') %>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Products</h1>
+            <button class="logout-button">Logout</button>
+        </div>
+
+       
+        <div class="dashboard-top">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-box" placeholder="Search users...">
+            </div>
+
+            <div class="summary-boxes">
+                <div class="summary-box">
+                    <h3>Total Users</h3>
+                    <p>120</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Active Users</h3>
+                    <p>98</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Blocked Users</h3>
+                    <p>22</p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="button-wrapper">
+            <button class="view-product-button">View Product</button>
+            <button class="add-product-button" id="add-product-button">Add Product</button>
+
+        </div>
+
+
+      
+        <div class="user-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Added Date</th>
+                        <th>Status</th>
+                        <th>Stock</th>
+                        <th>Sizes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="user-table-body">
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+        <div class="container" id="add-product-form-element" style="display: none;">
+            <header class="header">
+                <h2>Add New Product</h2>
+                <div class="actions">
+
+                    <button class="btn btn-primary">Add Product</button>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="left">
+                    <div class="left-side">
+                        <h3>General Information</h3>
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" name="product-name" placeholder="Enter product name">
+
+                        <label for="product-description">Description Product</label>
+                        <textarea id="product-description" name="product-description"
+                            placeholder="Enter product description"></textarea>
+                        <div class="size-selection">
+                            <div>
+                                <h3>Size</h3>
+                                <div style="display: flex; gap: 10px;">
+                                    <div class="size-box" onclick="toggleInput('xs')">XS</div>
+                                    <div class="size-box" onclick="toggleInput('x')">X</div>
+                                    <div class="size-box" onclick="toggleInput('m')">M</div>
+                                    <div class="size-box" onclick="toggleInput('xl')">XL</div>
+                                    <div class="size-box" onclick="toggleInput('xxl')">XXL</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3>Size Quantity</h3>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <input type="text" id="input-xs" placeholder="XS"
+                                        style="width: 50px; display: none;" oninput="updateTotal()">
+                                    <input type="text" id="input-x" placeholder="X" style="width: 50px; display: none;"
+                                        oninput="updateTotal()">
+                                    <input type="text" id="input-m" placeholder="M" style="width: 50px; display: none;"
+                                        oninput="updateTotal()">
+                                    <input type="text" id="input-xl" placeholder="XL"
+                                        style="width: 50px; display: none;" oninput="updateTotal()">
+                                    <input type="text" id="input-xxl" placeholder="XXL"
+                                        style="width: 50px; display: none;" oninput="updateTotal()">
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="left-side">
+                        <h3>Price and Stock</h3>
+                        <div style="display: flex; gap: 20px;">
+                            <div style="flex: 1;">
+                                <label for="base-price">Base Price</label>
+                                <input type="text" id="base-price" name="base-price" placeholder="Enter base price">
+                            </div>
+                            <!-- <div style="flex: 1;">
+                            <label for="discount">Discount (%)</label>
+                            <input type="text" id="discount" name="discount" placeholder="Enter discount">
+                        </div> -->
+                        </div>
+
+                        <div style="display: flex; gap: 20px;">
+                            <!-- <div style="flex: 1;">
+                            <label for="actual-price">Actual Price</label>
+                            <input type="text" id="actual-price" name="actual-price" placeholder="Enter actual price">
+                        </div> -->
+                            <div style="flex: 1; margin-top: 20px;">
+                                <label for="stock">Stock</label>
+                                <input type="text" id="stock" name="stock" placeholder="Total stock quantity" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right">
+                    <div class="right-side">
+                        <h3>Upload Image</h3>
+                        <div class="product-image">
+                            <img id="main-image"
+                                src="https://i.pinimg.com/736x/0c/71/48/0c71486941a6d025684913d38960083e.jpg"
+                                alt="Product Main Image">
+                            <div class="product-thumbnails" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            </div>
+                        </div>
+                        <input type="file" id="image-upload" multiple accept="image/*">
+                        <div id="cropper-container" style="display: none;">
+                            <div class="cropper-modal">
+                                <img id="cropper-image" alt="Image for cropping">
+                                <button id="crop-button">Crop</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="right-side">
+                        <h3>Category</h3>
+                        <select id="category-select">
+                            <option value="">Select Category</option>
+                        </select>
+
+                        <h3>Brand</h3>
+                        <select id="brand-select">
+                            <option value="">Select Brand</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        const addProductButton = document.getElementById('add-product-button');
+        const addProductForm = document.getElementById('add-product-form-element');
+        const userTable = document.querySelector('.user-table');
+        const viewProductButton = document.querySelector('.view-product-button');
+        // const editButton = document.getElementById('edit-button')
+        const editForm = document.getElementById('edit-product-form-element');
+
+        addProductButton.addEventListener('click', () => {
+            addProductForm.style.display = 'block';
+            userTable.style.display = 'none';
+        });
+
+        viewProductButton.addEventListener('click', () => {
+            addProductForm.style.display = 'none';
+            userTable.style.display = 'block';
+           
+
+            fetchAndDisplayProducts();
+        });
+
+
+        // dislaying the product
+
+        async function fetchAndDisplayProducts() {
+            const tbody = document.getElementById('user-table-body');
+
+            try {
+                const response = await fetch('/admin/getproducts');
+                const data = await response.json();
+                console.log(data.products);
+                document.querySelector('.summary-boxes .summary-box:nth-child(1) p').textContent = data.counts.total;
+                    document.querySelector('.summary-boxes .summary-box:nth-child(2) p').textContent = data.counts.active;
+                    document.querySelector('.summary-boxes .summary-box:nth-child(3) p').textContent = data.counts.blocked;
+
+                tbody.innerHTML = '';
+
+                data.products.forEach((product) => {
+                    const row = document.createElement('tr');
+                    const sizes = Object.entries(product.sizes)
+                        .map(([size, quantity]) => `${size}: ${quantity}`)
+                        .join(', ');
+                    const status = product.stock > 0 ? 'Active' : 'Not Available';
+                    let mainImageUrl = product.images[0].replace('uploads', '');
+                    row.innerHTML = `
+                <td><img src="http://manmode.uno/${mainImageUrl}" alt="Product Image" width="50"></td>
+                <td>${product.name}</td>
+                <td>${product.description}</td>
+                <td>${new Date(product.createdAt).toLocaleDateString()}</td>
+                <td>
+                    <select class="status-select ${product.isActive ? 'active' : 'blocked'}" onchange="updateProductStatus('${product._id}', this.value)">
+                        <option value="active" ${product.isActive ? 'selected' : ''}>Active</option>
+                        <option value="blocked" ${!product.isActive ? 'selected' : ''}>Blocked</option>
+                    </select>
+                </td>
+                <td>${product.stock}</td>
+                <td>${sizes}</td>
+                 <td>
+                        <i class="fas fa-edit edit-icon" onclick="editProduct('${product._id}')"></i>
+
+                        <i class="fas fa-trash delete-icon" onclick="deleteProduct('${product._id}')"></i>
+                    </td>
+            `;
+
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+
+
+        function editProduct(productId) {
+    const url = `http://manmode.uno/admin/admineditproducts?id=${productId}`;
+    window.location.href = url;
+}
+        fetchAndDisplayProducts();
+
+
+
+
+
+        function toggleInput(size) {
+            const inputField = document.getElementById(`input-${size}`);
+            inputField.style.display = inputField.style.display === "none" || inputField.style.display === "" ? "block" : "none";
+            if (inputField.style.display === "none") {
+                inputField.value = '';
+            }
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const sizes = ['xs', 'x', 'm', 'xl', 'xxl'];
+            let total = 0;
+            let anyVisible = false;
+
+            sizes.forEach(size => {
+                const inputField = document.getElementById(`input-${size}`);
+                const value = parseInt(inputField.value, 10);
+                if (inputField.style.display === "block") {
+                    anyVisible = true;
+                    if (!isNaN(value)) {
+                        total += value;
+                    }
+                }
+            });
+            document.getElementById('stock').value = anyVisible ? total : 0;
+        }
+
+// getting brand and category
+
+        async function fetchDataAndPopulate(url, selectId) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const data = await response.json();
+
+                const selectElement = document.getElementById(selectId);
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item._id;
+                    option.textContent = item.name;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                console.error(`Error populating ${selectId}:`, error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchDataAndPopulate('/admin/productcategory', 'category-select');
+            fetchDataAndPopulate('/admin/productbrand', 'brand-select');
+        });
+
+
+ 
+    
+
+        // image crop 
+        const mainImage = document.getElementById('main-image');
+        const imageUpload = document.getElementById('image-upload');
+        const thumbnailsContainer = document.querySelector('.product-thumbnails');
+        let uploadedImages = [];
+        let uploadedFiles = [];
+
+        const cropperContainer = document.getElementById('cropper-container');
+        const cropperImage = document.getElementById('cropper-image');
+        const cropButton = document.getElementById('crop-button');
+        let cropper;
+        imageUpload.addEventListener('change', function () {
+            const file = imageUpload.files[0]; 
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                   
+                    cropperImage.src = e.target.result;
+                    cropperContainer.style.display = 'flex';
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1, 
+                        viewMode: 1,
+                        minCropBoxWidth: 500,
+                        minCropBoxHeight: 600,
+                        ready() {
+                            const cropBoxData = cropper.getCropBoxData();
+                            cropBoxData.width = 500;
+                            cropBoxData.height = 600;
+                            cropper.setCropBoxData(cropBoxData);
+                        }
+                    });
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+
+
+        cropButton.addEventListener('click', function () {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 500,
+            height: 500,
+        });
+
+ 
+        canvas.toBlob(function(blob) {
+            const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+            
+   
+            uploadedFiles.push(file);
+
+            const imgElement = document.createElement('img');
+            imgElement.src = URL.createObjectURL(blob);
+            imgElement.alt = 'Thumbnail';
+            imgElement.style.cursor = 'pointer';
+            imgElement.style.width = '50px';
+            imgElement.style.height = '50px';
+            imgElement.style.objectFit = 'cover';
+
+            imgElement.addEventListener('click', () => {
+                mainImage.src = URL.createObjectURL(blob);
+            });
+
+            thumbnailsContainer.appendChild(imgElement);
+
+            if (uploadedImages.length === 1) {
+                mainImage.src = URL.createObjectURL(blob);
+            }
+
+            // Hide the cropper modal
+            cropperContainer.style.display = 'none';
+            cropper.destroy();
+        }, 'image/jpeg');
+    }
+});
+
+
+// adding product
+document.querySelector('.btn.btn-primary').addEventListener('click', async () => {
+    try {
+        const productName = document.getElementById('product-name').value.trim();
+        const productDescription = document.getElementById('product-description').value.trim();
+        const basePrice = document.getElementById('base-price').value.trim();
+        const stock = document.getElementById('stock').value.trim();
+        const category = document.getElementById('category-select').value;
+        const brand = document.getElementById('brand-select').value;
+
+        
+        const validationErrors = [];
+        
+        if (!productName) validationErrors.push('Product Name');
+        if (!productDescription) validationErrors.push('Product Description');
+        if (!basePrice || isNaN(parseFloat(basePrice))) validationErrors.push('Base Price');
+        if (!category) validationErrors.push('Category');
+        if (!brand) validationErrors.push('Brand');
+        if (uploadedFiles.length < 3) validationErrors.push('At least 3 Product Images');
+
+        if (validationErrors.length > 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Missing Information',
+                text: `Please provide: ${validationErrors.join(', ')}`
+            });
+            return;
+        }
+
+
+        const sizes = {};
+        ['xs', 'x', 'm', 'xl', 'xxl'].forEach(size => {
+            const input = document.getElementById(`input-${size}`);
+            if (input && input.style.display !== 'none' && input.value.trim()) {
+                sizes[size.toUpperCase()] = parseInt(input.value.trim());
+            }
+        });
+
+        const formData = new FormData();
+        formData.append('name', productName);
+        formData.append('description', productDescription);
+        formData.append('basePrice', parseFloat(basePrice));
+        formData.append('stock', parseInt(stock));
+        formData.append('category', category);
+        formData.append('brand', brand);
+        formData.append('sizes', JSON.stringify(sizes));
+
+        uploadedFiles.forEach(file => {
+            formData.append('images', file);
+        });
+
+        console.log(formData);
+
+        const response = await fetch('/admin/addproduct', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Product Added',
+                text: 'Product added successfully!'
+            });
+
+            resetProductForm();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.message || 'Failed to add product'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Unexpected Error',
+            text: 'An unexpected error occurred'
+        });
+        console.error('Error adding product:', error);
+    }
+});
+
+function resetProductForm() {
+    document.getElementById('product-name').value = '';
+    document.getElementById('product-description').value = '';
+    document.getElementById('base-price').value = '';
+    document.getElementById('stock').value = '';
+    document.getElementById('category-select').selectedIndex = 0;
+    document.getElementById('brand-select').selectedIndex = 0;
+    
+
+    ['xs', 'x', 'm', 'xl', 'xxl'].forEach(size => {
+        const input = document.getElementById(`input-${size}`);
+        input.value = '';
+        input.style.display = 'none';
+    });
+
+
+    document.querySelector('.product-thumbnails').innerHTML = '';
+    document.getElementById('main-image').src = 'https://i.pinimg.com/736x/0c/71/48/0c71486941a6d025684913d38960083e.jpg';
+    uploadedFiles = [];
+    uploadedImages = [];
+}
+
+
+
+// deleting the product
+       
+async function deleteProduct(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This action cannot be undone!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/product/${productId}`, { method: 'DELETE' });
+                        const data = await response.json();
+                        console.log(data);
+
+                        if (data) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The product has been deleted successfully.',
+                                'success'
+                            );
+                            fetchAndDisplayProducts();
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to delete the product. Please try again.',
+                                'error'
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error deleting product:', error);
+                        Swal.fire(
+                            'Error!',
+                            'An unexpected error occurred.',
+                            'error'
+                        );
+                    }
+                }
+            });
+        }
+
+
+
+        // update product status
+        async function updateProductStatus(productId, status) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to change the product status to ${status}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/admin/product/${productId}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ isActive: status === 'active' }),
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire(
+                                'Updated!',
+                                `Product status has been updated to ${status}.`,
+                                'success'
+                            );
+                            fetchAndDisplayProducts();
+                        } else {
+                            Swal.fire(
+                                'Error!',
+                                'Failed to update product status. Please try again.',
+                                'error'
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error updating product status:', error);
+                        Swal.fire(
+                            'Error!',
+                            'An unexpected error occurred while updating the status.',
+                            'error'
+                        );
+                    }
+                }
+            });
+        }
+
+
+
+// searching
+document.getElementById('search-box').addEventListener('input', function (e) {
+    const searchQuery = e.target.value.toLowerCase(); 
+    const tableRows = document.querySelectorAll('#user-table-body tr'); 
+
+    tableRows.forEach(row => {
+    
+        const rowText = row.innerText.toLowerCase();
+        if (rowText.includes(searchQuery)) {
+            row.style.display = ''; 
+        } else {
+            row.style.display = 'none'; 
+        }
+    });
+});
+
+
+
+
+        // document.getElementById('base-price').addEventListener('input', calculateActualPrice);
+        // document.getElementById('discount').addEventListener('input', calculateActualPrice);
+
+        // function calculateActualPrice() {
+        //     const basePrice = parseFloat(document.getElementById('base-price').value);
+        //     const discount = parseFloat(document.getElementById('discount').value);
+
+        //     let actualPrice = 0;
+        //     if (!isNaN(basePrice) && !isNaN(discount)) {
+        //         actualPrice = basePrice - (basePrice * (discount / 100));
+        //     }
+        //     document.getElementById('actual-price').value = actualPrice.toFixed(2);
+        // }
+
+// logout
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/admin/adminlogout', { method: 'POST' });
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Logged Out',
+                    text: 'You have been successfully logged out.',
+                    confirmButtonText: 'OK',
+                }).then(() => {
+                    window.location.href = '/admin'; 
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Logout Failed',
+                    text: 'Failed to log out. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        } catch (error) {
+            console.error('Error logging out:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Unexpected Error',
+                text: 'An unexpected error occurred. Please try again.',
+                confirmButtonText: 'OK',
+            });
+        }
+    });
+    
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

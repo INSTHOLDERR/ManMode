@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+</head>
+<style>
+    #resend-otp {
+        display: inline-block;
+        margin-top: 10px;
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    #resend-otp:hover {
+        color: #0056b3;
+    }
+
+    #otp-input {
+        margin-top: 10px;
+    }
+    #resend-otp {
+        display: inline-block;
+        margin-top: 10px;
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    #resend-otp:hover {
+        color: #0056b3;
+    }
+
+    #otp-input {
+        margin-top: 10px;
+    }
+
+    .validation-message {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .valid {
+        color: green;
+    }
+
+    .invalid {
+        color: red;
+    }
+    
+</style>
+
+<body>
+    <div class="register-container">
+        <div class="register-left-section">
+            <div class="register-left-section-inside"></div>
+        </div>
+
+        <div class="register-right-section">
+            <div class="register-logo">
+                <a href="/" class="register-logo-text" style="text-decoration: none;">
+                    ManMode
+                </a>
+            </div>
+
+            <div class="register-header">
+                <h2 class="register-title">
+                    <%= "Welcome" %>
+                </h2>
+                <p class="register-subtitle">
+                    <%= "Please register" %>
+                </p>
+            </div>
+
+            <form method="POST" id="register-form" class="register-form">
+
+                <div class="register-form-group">
+                    <input type="text" class="register-input-field" id="name" name="name" placeholder="Enter your name"
+                        required>
+                        <div id="name-validation-message" class="validation-message"></div>
+                </div>
+
+
+                <div class="register-form-group">
+                    <input type="email" class="register-input-field" id="email" name="email"
+                        placeholder="Enter your email" required>
+                        <div id="email-validation-message" class="validation-message"></div>
+                </div>
+
+
+                <div class="register-form-group">
+                    <div class="register-password-wrapper">
+                        <input type="password" class="register-input-field" id="password" name="password"
+                            placeholder="Enter your password" required>
+                        <button type="button" onclick="togglePassword('password', this)"
+                            class="register-toggle-password-button">Show</button>
+                    </div>
+                    <div id="password-validation-message" class="validation-message"></div>
+                </div>
+
+
+                <div class="register-form-group">
+                    <div class="register-password-wrapper">
+                        <input type="password" class="register-input-field" id="confirmPassword" name="confirmPassword"
+                            placeholder="Confirm your password" required>
+                        <button type="button" onclick="togglePassword('confirmPassword', this)"
+                            class="register-toggle-password-button">Show</button>
+                    </div>
+                </div>
+
+
+
+
+                <button type="button" class="register-button" id="submit-button">Register</button>
+            </form>
+
+            <div class="register-divider">Or Login with</div>
+
+            <div class="register-social-buttons">
+                <a href="/auth/google" class="register-social-button" style="text-decoration: none; color: black;">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                        <path fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                    </svg>
+                    Google
+                </a>
+            </div>
+
+
+
+            <div class="register-signup-prompt">
+                Already have an account? <a href="<%= '/login' %>" class="register-signup-link">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+function validateEmail(email) {
+            const emailValidationMessage = document.getElementById('email-validation-message');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailValidationMessage.textContent = 'Please enter a valid email address.';
+                emailValidationMessage.classList.remove('valid');
+                emailValidationMessage.classList.add('invalid');
+            } else {
+                emailValidationMessage.textContent = 'Valid email address.';
+                emailValidationMessage.classList.remove('invalid');
+                emailValidationMessage.classList.add('valid');
+            }
+        }
+
+        // Validate Name Length
+        function validateName(name) {
+            const nameValidationMessage = document.getElementById('name-validation-message');
+            if (name.length < 6) {
+                nameValidationMessage.textContent = 'Name must be at least 6 characters long.';
+                nameValidationMessage.classList.remove('valid');
+                nameValidationMessage.classList.add('invalid');
+            } else {
+                nameValidationMessage.textContent = 'Valid name.';
+                nameValidationMessage.classList.remove('invalid');
+                nameValidationMessage.classList.add('valid');
+            }
+        }
+
+        // Validate Password Length
+        function validatePassword(password) {
+            const passwordValidationMessage = document.getElementById('password-validation-message');
+            if (password.length < 6) {
+                passwordValidationMessage.textContent = 'Password must be at least 6 characters long.';
+                passwordValidationMessage.classList.remove('valid');
+                passwordValidationMessage.classList.add('invalid');
+            } else {
+                passwordValidationMessage.textContent = 'Valid password.';
+                passwordValidationMessage.classList.remove('invalid');
+                passwordValidationMessage.classList.add('valid');
+            }
+        }
+
+        // Real-time Validation on keyup
+        document.getElementById('email').addEventListener('keyup', function () {
+            validateEmail(this.value);
+        });
+
+        document.getElementById('name').addEventListener('keyup', function () {
+            validateName(this.value);
+        });
+
+        document.getElementById('password').addEventListener('keyup', function () {
+            validatePassword(this.value);
+        });
+
+        // Validate Password Match
+        function validatePasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirmPasswordMessage = document.getElementById('confirmPassword-validation-message');
+            if (password !== confirmPassword) {
+                confirmPasswordMessage.textContent = 'Passwords do not match.';
+                confirmPasswordMessage.classList.remove('valid');
+                confirmPasswordMessage.classList.add('invalid');
+            } else {
+                confirmPasswordMessage.textContent = 'Passwords match.';
+                confirmPasswordMessage.classList.remove('invalid');
+                confirmPasswordMessage.classList.add('valid');
+            }
+        }
+
+
+        function togglePassword(fieldId, button) {
+            const passwordField = document.getElementById(fieldId);
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+            button.textContent = type === 'password' ? 'Show' : 'Hide';
+        }
+
+        // Validatingggg
+        function validateFormFields() {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+            if (email && name.length >= 6 && password.length >= 6 && password === confirmPassword) {
+                return true;
+            }
+
+            if (!name || !email || !password || !confirmPassword) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "All fields are required.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+            if (password.length < 6) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Password must be at least 6 characters long.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Please enter a valid email address.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                Swal.fire({
+                    title: "Error!",
+                    text: "Passwords do not match.",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+
+        async function startOtpTimer(email, callback) {
+            let timerInterval;
+            let timeLeft = 60;
+
+            const openOtpPopup = async () => {
+                await Swal.fire({
+                    title: "Enter OTP",
+                    html: `<p>OTP has been sent to your email.</p>
+                   <p><span id="otp-timer">00:${timeLeft}</span></p>
+                   <input type="text" id="otp-input" class="swal2-input" placeholder="Enter OTP here">
+                   <div id="resend-otp" style="display:none;">Resend OTP</div>`,
+                    preConfirm: async () => {
+                        const otp = document.getElementById('otp-input').value;
+                        if (!otp) {
+                            Swal.showValidationMessage('Please enter the OTP');
+                            return false;
+                        }
+                        return otp;
+                    },
+                    didOpen: async () => {
+                        const timerEl = document.getElementById("otp-timer");
+                        const resendLink = document.getElementById("resend-otp");
+
+                        timerInterval = setInterval(() => {
+                            timeLeft--;
+                            timerEl.textContent = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+
+                            if (timeLeft <= 0) {
+                                clearInterval(timerInterval);
+                                timerEl.textContent = "Time expired!";
+                                resendLink.style.display = "block";
+                            }
+                        }, 1000);
+
+
+                        resendLink.addEventListener("click", async () => {
+                            resendLink.style.display = "none";
+                            timeLeft = 60;
+                            timerEl.textContent = "00:60";
+
+                            try {
+                                const resendResponse = await fetch("/send-otp", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ email })
+                                });
+
+                                const resendResult = await resendResponse.json();
+                                if (resendResponse.ok) {
+                                    Swal.fire({
+                                        title: "Success!",
+                                        text: "OTP sent again.",
+                                        icon: "success",
+                                        confirmButtonText: "OK"
+                                    });
+                                    clearInterval(timerInterval);
+                                    openOtpPopup();
+                                } else {
+                                    throw new Error(resendResult.error || "Failed to resend OTP");
+                                }
+                            } catch (error) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: error.message,
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                            }
+                        });
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    }
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        const otp = result.value;
+                        try {
+                            const validateResponse = await fetch('/validate-otp', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email, otp })
+                            });
+
+                            const validateResult = await validateResponse.json();
+                            if (!validateResponse.ok) {
+                                Swal.fire({
+                                    title: "Error!",
+                                    text: "Incorrect OTP. Please try again.",
+                                    icon: "error",
+                                    confirmButtonText: "OK"
+                                });
+                                openOtpPopup();
+                            } else {
+                                callback(otp);
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                title: "Error!",
+                                text: error.message || "An error occurred during OTP validation.",
+                                icon: "error",
+                                confirmButtonText: "OK"
+                            });
+                            openOtpPopup();
+                        }
+                    }
+                });
+            };
+
+            openOtpPopup();
+        }
+
+        // Registration
+        document.getElementById('submit-button').addEventListener('click', async function () {
+            if (!validateFormFields()) return;
+
+            const email = document.getElementById("email").value.trim();
+            try {
+                const otpResponse = await fetch("/send-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email })
+                });
+
+                const otpResult = await otpResponse.json();
+                console.log("otpResult", otpResult);
+
+                if (!otpResponse.ok) {
+                    throw new Error(otpResult.message || "Error sending OTP");
+                }
+
+
+                await startOtpTimer(email, async (otp) => {
+                    const validateResponse = await fetch('/validate-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, otp })
+                    });
+
+                    const validateResult = await validateResponse.json();
+                    if (!validateResponse.ok) {
+                        Swal.fire({
+                            title: "Error!",
+                            text: validateResult.error || "OTP validation failed",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                        return;
+                    }
+
+
+                    const formData = new FormData(document.getElementById('register-form'));
+                    const data = Object.fromEntries(formData.entries());
+console.log(data);
+
+                    const registerResponse = await fetch('/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const registerResult = await registerResponse.json();
+                    if (registerResponse.ok) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Registration successful.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/login';
+                        });
+                    } else {
+                        throw new Error(registerResult.error || "Registration failed");
+                    }
+                });
+            } catch (error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonText: 'Try Again'
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>

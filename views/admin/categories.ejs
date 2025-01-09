@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+    <title>ManMode</title>
+    <link rel="stylesheet" href="/admin/brands.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+</head>
+
+<body>
+
+    <%- include('./commonpages/sidebar') %>
+
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Categories</h1>
+            <button class="logout-button">Logout</button>
+        </div>
+
+  
+        <div class="dashboard-top">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-box" placeholder="Search categories...">
+            </div>
+            <div class="summary-boxes">
+                <div class="summary-box">
+                    <h3>Total Category</h3>
+                    <p>120</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Active Category</h3>
+                    <p>98</p>
+                </div>
+                <div class="summary-box">
+                    <h3>Inactive Category</h3>
+                    <p>22</p>
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="button-wrapper">
+            <button class="view-categories-button">View Categories</button>
+            <button class="add-category-button" id="add-category-button">Add Category</button>
+        </div>
+
+     
+        <form id="add-category-form-element" style="display: none;">
+            <label for="category-name">Category Name:</label>
+            <input type="text" id="category-name" name="category-name" placeholder="Enter category name" required>
+            <label for="category-description">Category Description:</label>
+            <input type="text" id="category-description" name="category-description"
+                placeholder="Enter category description" required>
+
+            <label for="category-image">Upload Photo:</label>
+            <input type="file" id="category-image" name="category-image" accept="image/*" required>
+
+            <div id="image-preview" class="image-preview">
+                <img id="preview-img" src="" alt="Image Preview" />
+            </div>
+
+            <button type="button" id="submit-category-button">Add Category</button>
+        </form>
+
+        <form id="edit-category-form" style="display: none;">
+            <input type="hidden" id="edit-category-id"> 
+            <input type="text" id="edit-category-name" placeholder="Category Name">
+            <label for="category-description">Category Description:</label>
+            <input type="text" id="edit-category-description" name="category-description"
+                placeholder="Enter category description">
+            <input type="file" id="edit-category-image" name="category-image" accept="image/*">
+            <img id="edit-category-preview" style="display: none;" alt="Image preview"> 
+            <button type="submit">Update Category</button>
+        </form>
+
+
+        <div class="user-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Category Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="category-table-body">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <script>
+
+        const addCategoryButton = document.getElementById('add-category-button');
+        const addCategoryForm = document.getElementById('add-category-form-element');
+        const userTable = document.querySelector('.user-table');
+        const viewCategoryButton = document.querySelector('.view-categories-button');
+        const editForm = document.getElementById('edit-category-form');
+
+        addCategoryButton.addEventListener('click', () => {
+            addCategoryForm.style.display = 'block';
+            userTable.style.display = 'none';
+        });
+
+        viewCategoryButton.addEventListener('click', () => {
+            addCategoryForm.style.display = 'none';
+            userTable.style.display = 'block';
+            editForm.style.display = "none"
+
+            fetchAndRenderCategories();
+        });
+
+
+
+
+
+// adding category
+        document.getElementById('submit-category-button').addEventListener('click', async function (e) {
+            e.preventDefault();
+
+
+            const name = document.getElementById('category-name').value;
+            const description = document.getElementById('category-description').value;
+            const image = document.getElementById('category-image').files[0];
+
+
+            const formData = new FormData();
+            formData.append('category-name', name);
+            formData.append('category-description', description);
+            formData.append('category-image', image);
+
+
+            if (!name.trim() || !description || !image) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Incomplete Information',
+                    text: 'Please fill out the brand name and select an image before submitting!',
+                });
+                return;
+            }
+
+
+            Swal.fire({
+                title: 'Uploading...',
+                text: 'Please wait while your brand is being uploaded.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            try {
+
+                const response = await fetch('/admin/category', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                Swal.close();
+
+                if (response.ok) {
+                    const result = await response.json();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Brand Uploaded Successfully',
+                        text: result.message,
+                    });
+                    console.log(result.category);
+
+
+                    document.getElementById('category-name').value = '';
+                    document.getElementById('category-description').value = '';
+                    document.getElementById('category-image').value = '';
+                } else {
+                    const errorResult = await response.json();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Upload Failed',
+                        text: errorResult.message,
+                    });
+                }
+            } catch (error) {
+
+                Swal.close();
+                console.error("Error during the brand upload:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'There was an error connecting to the server. Please try again later.',
+                });
+            }
+        });
+
+
+// Display Categories
+        async function fetchAndRenderCategories() {
+            try {
+               
+                const response = await fetch('/admin/getcategory');
+                const data = await response.json();
+
+                document.querySelector('.summary-boxes .summary-box:nth-child(1) p').textContent = data.counts.total;
+                document.querySelector('.summary-boxes .summary-box:nth-child(2) p').textContent = data.counts.active;
+                document.querySelector('.summary-boxes .summary-box:nth-child(3) p').textContent = data.counts.blocked;
+
+                if (response.ok) {
+                    console.log(data);
+                    const categories = data.categories;
+                    const tbody = document.querySelector('#category-table-body');
+                    console.log(categories);
+
+                 
+                    tbody.innerHTML = '';
+
+              
+                    categories.forEach((category) => {
+                        const imagePath = category.image.replace(/\\/g, '/').replace('uploads', ''); 
+
+                        const fullImageUrl = `http://manmode.uno/${imagePath}`;
+                        console.log(fullImageUrl);
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+            <td><img src="${fullImageUrl}" alt="${category.name}" class="user-image"></td>
+            <td>${category.name}</td>
+            <td>${category.description}</td>
+            <td>
+                <select class="status-select ${category.isActive ? 'active' : 'blocked'}" onchange="updateCategoryStatus('${category._id}', this.value)">
+                    <option value="active" ${category.isActive ? 'selected' : ''}>Active</option>
+                    <option value="blocked" ${!category.isActive ? 'selected' : ''}>Blocked</option>
+                </select>
+            </td>
+            <td>${new Date(category.createdAt).toLocaleDateString()}</td>
+            <td>
+                <i class="fas fa-edit edit-icon" data-id="${category._id}" data-name="${category.name}" data-description="${category.description}" data-image="${fullImageUrl}"></i>
+                <i class="fas fa-trash delete-icon" onclick="deleteCategory('${category._id}')"></i>
+            </td>
+        `;
+                        tbody.appendChild(row);
+                    });
+
+                
+                    const editIcons = document.querySelectorAll('.edit-icon');
+                    editIcons.forEach((icon) => {
+                        icon.addEventListener('click', (e) => {
+                            console.log("and");
+
+                            const categoryId = e.target.getAttribute('data-id');
+                            const categoryName = e.target.getAttribute('data-name');
+                            const categoryDescription = e.target.getAttribute('data-description')
+                            const categoryImage = e.target.getAttribute('data-image');
+
+
+                            document.getElementById('edit-category-id').value = categoryId;
+
+
+                            document.getElementById('edit-category-name').value = categoryName;
+                            document.getElementById('edit-category-description').value = categoryDescription;
+                            const editImagePreview = document.getElementById('edit-category-preview');
+                            editImagePreview.src = categoryImage;
+                            editImagePreview.style.display = 'block';
+
+                        
+                            document.getElementById('edit-category-form').style.display = 'block';
+                            document.querySelector('.user-table').style.display = 'none';
+                        });
+                    });
+                } else {
+                    console.error('Failed to fetch category:', data.message);
+                    alert(data.message || 'Error fetching category');
+                }
+            } catch (error) {
+                console.error('Error fetching category:', error);
+                alert('An error occurred while fetching the category details.');
+            }
+        }
+
+        fetchAndRenderCategories();
+        
+
+
+// edit-category
+
+
+
+document.getElementById('edit-category-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    const categoryId = document.getElementById('edit-category-id').value; 
+    const name = document.getElementById('edit-category-name').value.trim();
+    const description = document.getElementById('edit-category-description').value.trim();
+    const image = document.getElementById('edit-category-image').files[0];
+    
+  
+    if (!name || !categoryId) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Missing Information',
+        text: 'Please provide the category name and ensure all fields are correctly filled.',
+    });
+    return;
+    }
+    
+   
+    const formData = new FormData();
+    formData.append('category-name', name);
+    formData.append('category-description', description); 
+    if (image) {
+    formData.append('category-image', image); 
+    }
+    
+   
+    Swal.fire({
+    title: 'Updating category...',
+    text: 'Please wait while we update the category details.',
+    allowOutsideClick: false,
+    didOpen: () => {
+        Swal.showLoading();
+    },
+    });
+    
+    try {
+ 
+    const response = await fetch(`/admin/category/${categoryId}`, {
+        method: 'PUT',
+        body: formData,
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+        Swal.fire({
+            icon: 'success',
+            title: 'category Updated Successfully!',
+            text: result.message || 'The category details were updated successfully.',
+            confirmButtonText: 'OK',
+        }).then(() => {
+       
+            document.getElementById('edit-category-form').reset();
+            document.getElementById('edit-category-form').style.display = 'none';
+            document.querySelector('.user-table').style.display = 'block';
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: result.message || 'Failed to update the category details. Please try again.',
+            confirmButtonText: 'Retry',
+        });
+    }
+    } catch (error) {
+    console.error('Error updating category:', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Network Error',
+        text: 'There was an error connecting to the server. Please try again later.',
+    });
+    }
+    });
+    
+    
+    
+    // change status
+
+
+    async function updateCategoryStatus(categoryId, status) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to change the category status to ${status}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!',
+        cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/category/${categoryId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ isActive: status === 'active' }),
+                });
+
+                const data = await response.json(); 
+
+                console.log("Fetched response", data);
+
+                if (data.success) {
+            
+                    Swal.fire(
+                        'Updated!',
+                        `Category status has been updated to ${status}.`,
+                        'success'
+                    );
+
+                   
+                    fetchAndRenderCategories();
+                } else {
+                  
+                    Swal.fire(
+                        'Error!',
+                        data.message || 'Failed to update category status. Please try again.',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error updating category status:', error);
+
+          
+                Swal.fire(
+                    'Error!',
+                    'An unexpected error occurred while updating the status.',
+                    'error'
+                );
+            }
+        }
+    });
+}
+
+// delete category
+
+
+async function deleteCategory(categoryId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/category/${categoryId}`, { method: 'DELETE' });
+                const data = await response.json();
+                console.log(data);
+
+                if (data) {
+                    Swal.fire(
+                        'Deleted!',
+                        'The category has been deleted successfully.',
+                        'success'
+                    );
+                   fetchAndRenderCategories()
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        'Failed to delete the category. Please try again.',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error deleting user:', error);
+                Swal.fire(
+                    'Error!',
+                    'An unexpected error occurred.',
+                    'error'
+                );
+            }
+        }
+    });
+}
+
+
+
+// Searching
+
+document.getElementById('search-box').addEventListener('input', function (e) {
+    const searchQuery = e.target.value.toLowerCase(); 
+    const tableRows = document.querySelectorAll('#category-table-body tr');
+
+    tableRows.forEach(row => {
+        const rowText = row.innerText.toLowerCase();
+        if (rowText.includes(searchQuery)) {
+            row.style.display = ''; 
+        } else {
+            row.style.display = 'none'; 
+        }
+    });
+});
+
+
+
+document.getElementById('category-image').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    const previewImage = document.getElementById('preview-img');
+    const imagePreviewBox = document.getElementById('image-preview');
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        previewImage.style.display = 'none'; 
+    }
+});
+
+
+// logout
+
+
+document.querySelector('.logout-button').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/admin/adminlogout', { method: 'POST' });
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Logged Out',
+                    text: 'You have been successfully logged out.',
+                    confirmButtonText: 'OK',
+                }).then(() => {
+                    window.location.href = '/admin';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Logout Failed',
+                    text: 'Failed to log out. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        } catch (error) {
+            console.error('Error logging out:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Unexpected Error',
+                text: 'An unexpected error occurred. Please try again.',
+                confirmButtonText: 'OK',
+            });
+        }
+    });
+    
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>
