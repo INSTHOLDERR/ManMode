@@ -1323,7 +1323,7 @@ console.log("jkfdhgigfdknjf",req.body);
 
 
     export const userOrderHistorys = async (req, res) => {
-      const userId = req.session.user.id; 
+      const userId = req.session.user?.id; 
       // console.log(userId);
       
       try {
