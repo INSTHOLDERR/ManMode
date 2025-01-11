@@ -48,6 +48,10 @@ const cartItemSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  cancelReason: {
+    type: String,
+    required: false,
+  }
 },{ timestamps: true });
 
 const userOrderSchema = new mongoose.Schema({

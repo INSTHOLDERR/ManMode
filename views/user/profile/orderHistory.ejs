@@ -332,36 +332,69 @@ async function handleInvoiceDownload(orderId, itemId) {
 }
 
 async function handleCancel(orderId, itemId) {
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, cancel it!'
-    });
+    try {
+        // Prompt user for a reason
+        const { value: reason } = await Swal.fire({
+            title: 'Return Request',
+            input: 'textarea',
+            inputLabel: 'Please provide a reason for canceling this item',
+            inputPlaceholder: 'Enter your reason here...',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to provide a reason!';
+                }
+            }
+        });
 
-    if (result.isConfirmed) {
-        try {
+        // If user cancels reason prompt
+        if (!reason) {
+            return; // Do nothing if no reason is provided
+        }
+
+        // Confirmation dialog
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!'
+        });
+
+        if (result.isConfirmed) {
+            // Send cancellation request to the backend
             const response = await fetch(`/cancelOrderItem/${orderId}/${itemId}`, {
-                method: 'PATCH'
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason }) // Pass the reason in the request body
             });
-            
+
             if (response.ok) {
+                // Show success message and reload
                 Swal.fire(
                     'Cancelled!',
                     'Your order has been cancelled.',
                     'success'
                 ).then(() => location.reload());
             } else {
-                throw new Error('Failed to cancel order');
+                // Handle backend failure
+                const errorData = await response.json();
+                Swal.fire('Error!', errorData.message || 'Failed to cancel order.', 'error');
             }
-        } catch (error) {
-            showError('Failed to cancel order');
         }
+    } catch (error) {
+        // Handle unexpected errors
+        Swal.fire('Error!', 'Something went wrong. Please try again later.', 'error');
+        console.error('Cancellation error:', error);
     }
 }
+
+
+
 
 function showError(message) {
     Swal.fire({

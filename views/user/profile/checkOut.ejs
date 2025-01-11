@@ -691,21 +691,24 @@
                     const { productId, size, count, totalPrice: itemTotal, actualPrice } = item;
                     const product = productId;
                     totalPrice += itemTotal;
-
                     cartContainer.innerHTML += `
-            <div class="d-flex align-items-center border p-3 mb-3">
-                <div class="me-3">
-                    <img src="http://manmode.uno/${product.images[0].replace('uploads', '')}" alt="${product.name}" style="width: 100px; height: 100px;" onerror="this.src='/fallback-image.jpg'">
-                </div>
-                <div>
-                    <h6>${product.name}</h6>
-                    <p>Price: ₹${actualPrice}</p>
-                    <p>Size: ${size}</p>
-                    <p>Count: ${count}</p>
-                    <p>Total: ₹${itemTotal}</p>
-                </div>
-            </div>`;
-                });
+    <a href="/viewuser?id=${product._id}" class="text-decoration-none text-dark">
+        <div class="d-flex align-items-center border p-3 mb-3">
+            <div class="me-3">
+                <img src="http://localhost:3001/${product.images[0].replace('uploads', '')}" alt="${product.name}" style="width: 100px; height: 100px;" onerror="this.src='/fallback-image.jpg'">
+            </div>
+            <div>
+                <h6>${product.name}</h6>
+                <p>Price: ₹${actualPrice}</p>
+                <p>Size: ${size}</p>
+                <p>Count: ${count}</p>
+                <p>Total: ₹${itemTotal}</p>
+            </div>
+        </div>
+    </a>`;
+
+        
+        });
                 totalPrice += deliveryCharge;
 
                 actualPriceContainer.textContent = (totalPrice - deliveryCharge).toFixed(2);
