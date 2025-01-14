@@ -695,7 +695,7 @@
     <a href="/viewuser?id=${product._id}" class="text-decoration-none text-dark">
         <div class="d-flex align-items-center border p-3 mb-3">
             <div class="me-3">
-                <img src="http://manmode.uno/${product.images[0].replace('uploads', '')}" alt="${product.name}" style="width: 100px; height: 100px;" onerror="this.src='/fallback-image.jpg'">
+                <img src="http://localhost:3000/${product.images[0].replace('uploads', '')}" alt="${product.name}" style="width: 100px; height: 100px;" onerror="this.src='/fallback-image.jpg'">
             </div>
             <div>
                 <h6>${product.name}</h6>
@@ -762,7 +762,7 @@
                             document.getElementById('user-email').textContent = `Email: ${user.email}`;
                             document.getElementById('user-phone').textContent = `Phone: ${user.number}`;
                             document.getElementById('user-image').src = user.image
-                                ? `http://manmode.uno/uploaded-images/${user.image.replace('uploads', '')}`
+                                ? `http://localhost:3000/uploaded-images/${user.image.replace('uploads', '')}`
                                 : '/images/user.webp';
 
                         } else {

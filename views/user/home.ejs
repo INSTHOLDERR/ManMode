@@ -17,7 +17,7 @@
 
 
 <body >
-
+  
 
   <%- include('./common-ele/nav') %>
 
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         brandCol.innerHTML = `
           <div class="brand-card" data-brand-id="${brands[j]._id}">
-            <img src="http://manmode.uno/${mainImageUrl}" alt="${brands[j].name}">
+            <img src="http://localhost:3000/${mainImageUrl}" alt="${brands[j].name}">
             <div class="brand-name">${brands[j].name}</div>
           </div>
         `;
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const productCard = `
           <a style="text-decoration:none;" href="/viewuser?id=${product._id}" class="product-card-link">
             <div class="product-card">
-              <img src="http://manmode.uno/${mainImageUrl}" alt="${product.name}">
+              <img src="http://localhost:3000/${mainImageUrl}" alt="${product.name}">
               <i class="fa-regular fa-eye view-icon"></i>
               <div class="product-name">${product.name}</div>
               <div class="product-price">₹${product.offerPrice}</div>
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const productCard = `
           <a style="text-decoration:none;" href="/viewuser?id=${product._id}" class="product-card-link">
             <div class="product-card">
-              <img src="http://manmode.uno/${mainImageUrl}" alt="${product.name}">
+              <img src="http://localhost:3000/${mainImageUrl}" alt="${product.name}">
               <i class="fa-regular fa-eye view-icon"></i>
               <div class="product-name">${product.name}</div>
               <div class="product-price">₹${product.offerPrice}</div>

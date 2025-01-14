@@ -92,7 +92,7 @@
                             <tr>
                               <td>
   <img 
-    src="${user.image ? `http://manmode.uno/uploaded-images/${user.image.replace('uploads', '')}` : 'https://via.placeholder.com/40'}" 
+    src="${user.image ? `http://localhost:3000/uploaded-images/${user.image.replace('uploads', '')}` : 'https://via.placeholder.com/40'}" 
     alt="User Image" 
     class="user-image"
   >
@@ -232,6 +232,8 @@
 
 
         fetchUsers();
+
+
 
         // logout
 

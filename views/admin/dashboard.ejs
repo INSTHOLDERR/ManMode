@@ -573,6 +573,45 @@
 
 
 
+        // logout
+
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+            try {
+
+                console.log("jkghsfug");
+                
+                const response = await fetch('/admin/adminlogout', { method: 'POST' });
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged Out',
+                        text: 'You have been successfully logged out.',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                        window.location.href = '/admin';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Logout Failed',
+                        text: 'Failed to log out. Please try again.',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
+
+
+
         </script>
 
 

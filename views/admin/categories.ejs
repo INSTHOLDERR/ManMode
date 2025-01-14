@@ -229,7 +229,7 @@
                     categories.forEach((category) => {
                         const imagePath = category.image.replace(/\\/g, '/').replace('uploads', ''); 
 
-                        const fullImageUrl = `http://manmode.uno/${imagePath}`;
+                        const fullImageUrl = `http://localhost:3000/${imagePath}`;
                         console.log(fullImageUrl);
 
                         const row = document.createElement('tr');

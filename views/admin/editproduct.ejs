@@ -293,12 +293,12 @@ async function editProduct(productId) {
             thumbnailsContainer.innerHTML = '';
 
             let mainImageUrl = product.images[0].replace('uploads', '');
-            document.getElementById('main-image').src = `http://manmode.uno/${mainImageUrl}`;
+            document.getElementById('main-image').src = `http://localhost:3000/${mainImageUrl}`;
 
            
             const imagePromises = product.images.map((imageUrl, index) => {
                 const transformedUrl = imageUrl.replace('uploads', '');
-                const fullUrl = `http://manmode.uno/${transformedUrl}`;
+                const fullUrl = `http://localhost:3000/${transformedUrl}`;
 
                 return fetch(fullUrl)
                     .then(response => response.blob())
@@ -591,6 +591,58 @@ console.log("after removing", uploadedFiles);
         });
     }
 });
+
+
+document.getElementById('search-box').addEventListener('input', function (e) {
+            const searchQuery = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#user-table-body tr');
+
+            tableRows.forEach(row => {
+
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+
+        // logout
+
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/admin/adminlogout', { method: 'POST' });
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged Out',
+                        text: 'You have been successfully logged out.',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                        window.location.href = '/admin';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Logout Failed',
+                        text: 'Failed to log out. Please try again.',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
+
 
     </script>
 

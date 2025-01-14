@@ -128,11 +128,16 @@
     <div class="main-content">
         <div class="header">
             <h1>Coupons</h1>
+            
             <button class="logout-button">Logout</button>
         </div>
 
     
         <button id="showAddCouponButton">Add Coupon</button>
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-box" placeholder="Search users...">
+        </div>
 
         <!-- Add Coupon Section -->
         <section id="add-coupon" style="display: none;">
@@ -339,6 +344,57 @@
 
   
         fetchCoupons();
+
+        document.getElementById('search-box').addEventListener('input', function (e) {
+            const searchQuery = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#user-table-body tr');
+
+            tableRows.forEach(row => {
+
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+
+        // logout
+
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/admin/adminlogout', { method: 'POST' });
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged Out',
+                        text: 'You have been successfully logged out.',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                        window.location.href = '/admin';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Logout Failed',
+                        text: 'Failed to log out. Please try again.',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
+
     </script>
 </body>
 </html>

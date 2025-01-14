@@ -60,7 +60,7 @@
             <div class="products-container" id="similarProductsContainer">
                 <div class="product-card">
                     <a href="/viewuser?id=product_id" class="product-link">
-                        <img src="http://manmode.uno/images/product.jpg" alt="Product Name" class="product-image">
+                        <img src="http://localhost:3000/images/product.jpg" alt="Product Name" class="product-image">
                         <h3 class="product-name">Product Name</h3>
                         <p class="product-price">₹100.00</p>
                     </a>
@@ -174,7 +174,7 @@ function disProducts(products) {
 
     
         const img = document.createElement("img");
-        img.src = `http://manmode.uno/${imgUrl}`;
+        img.src = `http://localhost:3000/${imgUrl}`;
         img.alt = productName;
         img.classList.add("product-image");
 

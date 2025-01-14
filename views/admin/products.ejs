@@ -283,7 +283,7 @@
                     const status = product.stock > 0 ? 'Active' : 'Not Available';
                     let mainImageUrl = product.images[0].replace('uploads', '');
                     row.innerHTML = `
-                <td><img src="http://manmode.uno/${mainImageUrl}" alt="Product Image" width="50"></td>
+                <td><img src="http://localhost:3000/${mainImageUrl}" alt="Product Image" width="50"></td>
                 <td>${product.name}</td>
                 <td>${product.description}</td>
                 <td>${new Date(product.createdAt).toLocaleDateString()}</td>
@@ -311,7 +311,7 @@
 
 
         function editProduct(productId) {
-    const url = `http://manmode.uno/admin/admineditproducts?id=${productId}`;
+    const url = `http://localhost:3000/admin/admineditproducts?id=${productId}`;
     window.location.href = url;
 }
         fetchAndDisplayProducts();

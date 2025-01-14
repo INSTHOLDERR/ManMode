@@ -253,7 +253,7 @@
                     <div class="products-container" id="similarProductsContainer">
                         <div class="product-card">
                             <a href="/viewuser?id=product_id" class="product-link">
-                                <img src="http://manmode.uno/images/product.jpg" alt="Product Name"
+                                <img src="http://localhost:3000/images/product.jpg" alt="Product Name"
                                     class="product-image">
                                 <h3 class="product-name">Product Name</h3>
                                 <p class="product-price">₹100.00</p>
@@ -409,7 +409,7 @@
                                     (review) => `
                             <div class="col-md-4">
                                 <div class="review-card text-center p-3">
-                                    <img src="http://manmode.uno/uploaded-images/${review.userId.image.replace('uploads', '')}" alt="User Image" class="user-image mb-3 rounded-circle">
+                                    <img src="http://localhost:3000/uploaded-images/${review.userId.image.replace('uploads', '')}" alt="User Image" class="user-image mb-3 rounded-circle">
                                     <h4 class="user-name">${review.userId.name || 'Anonymous'}</h4>
                                     <p class="user-review">"${review.review}"</p>
                                     <div class="user-rating">${'⭐'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
@@ -511,7 +511,7 @@
 
                     const mainImage = document.querySelector("#mainImage");
                     const mainImagePath = product.images[0].replace("uploads", "");
-                    mainImage.src = `http://manmode.uno/${mainImagePath}`;
+                    mainImage.src = `http://localhost:3000/${mainImagePath}`;
                     mainImage.alt = product.name;
 
 
@@ -520,10 +520,10 @@
                     product.images.forEach((image, index) => {
                         const thumbnailPath = image.replace("uploads", "");
                         const imgElement = document.createElement("img");
-                        imgElement.src = `http://manmode.uno/${thumbnailPath}`;
+                        imgElement.src = `http://localhost:3000/${thumbnailPath}`;
                         imgElement.alt = `Thumbnail ${index + 1}`;
                         imgElement.classList.add("thumbnail");
-                        imgElement.onclick = () => changeImage(`http://manmode.uno/${thumbnailPath}`);
+                        imgElement.onclick = () => changeImage(`http://localhost:3000/${thumbnailPath}`);
                         thumbnailsContainer.appendChild(imgElement);
                     });
 
@@ -753,7 +753,7 @@
 
                         productCard.innerHTML = `
             <a href="/viewuser?id=${product._id}" class="product-link">
-                <img src="http://manmode.uno/${product.images[0].replace('uploads', '')}" alt="${product.name}" class="product-image">
+                <img src="http://localhost:3000/${product.images[0].replace('uploads', '')}" alt="${product.name}" class="product-image">
                 <h3 class="product-name">${product.name}</h3>   
                 <p class="product-price">₹${product.offerPrice}</p>
             </a>

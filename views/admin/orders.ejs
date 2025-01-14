@@ -377,6 +377,58 @@ document.getElementById('order-table-body').addEventListener('change', async (ev
 
 
         fetchOrders();
+
+        document.getElementById('search-box').addEventListener('input', function (e) {
+            const searchQuery = e.target.value.toLowerCase();
+            const tableRows = document.querySelectorAll('#user-table-body tr');
+
+            tableRows.forEach(row => {
+
+                const rowText = row.innerText.toLowerCase();
+                if (rowText.includes(searchQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+
+        // logout
+
+        document.querySelector('.logout-button').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/admin/adminlogout', { method: 'POST' });
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Logged Out',
+                        text: 'You have been successfully logged out.',
+                        confirmButtonText: 'OK',
+                    }).then(() => {
+                        window.location.href = '/admin';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Logout Failed',
+                        text: 'Failed to log out. Please try again.',
+                        confirmButtonText: 'OK',
+                    });
+                }
+            } catch (error) {
+                console.error('Error logging out:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Unexpected Error',
+                    text: 'An unexpected error occurred. Please try again.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        });
+
+
+        
     </script>
 </body>
 </html>

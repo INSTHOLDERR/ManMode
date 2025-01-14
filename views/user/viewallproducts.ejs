@@ -135,7 +135,7 @@
         productLink.classList.add("product-link");
 
         const img = document.createElement("img");
-        img.src = `http://manmode.uno/${product.images[0].replace('uploads', '')}`;
+        img.src = `http://localhost:3000/${product.images[0].replace('uploads', '')}`;
         img.alt = product.name || "No name available";
         img.classList.add("product-image");
 

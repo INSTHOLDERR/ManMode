@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const imagePath = data.image
   ? data.image.replace(/\\/g, '/').replace('uploads', '')
   : 'path/to/default/image.jpg';
-const fullImageUrl = `http://manmode.uno/uploaded-images/${imagePath}`;
+const fullImageUrl = `http://localhost:3000/uploaded-images/${imagePath}`;
 
 
 
@@ -594,11 +594,24 @@ console.log("data",formData);
         document.getElementById('viewPhone').innerText = phone;
         document.getElementById('userImage').src = image;
 
-        alert("Profile updated successfully!");
+        Swal.fire({
+      icon: 'success',
+      title: 'Profile Updated!',
+      text: 'Your profile has been updated successfully.',
+      confirmButtonText: 'OK'
+    });
       } else {
-        alert("Failed to update profile.");
+        Swal.fire({
+      icon: 'error',
+      title: 'Update Failed',
+      text: 'Failed to update your profile. Please try again.',
+      confirmButtonText: 'OK'
+    });
       }
     })
+   
+   
+   
     .catch(error => {
       console.error('Error saving profile:', error);
       alert("An error occurred while saving your profile.");
@@ -661,6 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </script>
   
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script src="/js/nav.js"></script>
 
