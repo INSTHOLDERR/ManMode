@@ -1,0 +1,126 @@
+<link rel="stylesheet" href="/css/main.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="mm-header" id="mmHeader">
+  <!-- Topbar -->
+  <div class="mm-topbar">Free delivery on orders above ₹999 &nbsp;·&nbsp; Use code <strong>MANMODE10</strong> for 10% off</div>
+
+  <!-- Main row -->
+  <div class="mm-nav-inner">
+    <a href="/userhome" class="mm-logo">ManMode</a>
+
+    <!-- Search (desktop) -->
+    <div class="mm-search" id="desktopSearch">
+      <i class="fas fa-search mm-search-icon"></i>
+      <input class="mm-search-input" id="desktopSearchInput" type="text" placeholder="Search products…" autocomplete="off">
+      <ul class="mm-suggestions" id="desktopSuggestions" style="display:none;"></ul>
+    </div>
+
+    <!-- Actions -->
+    <div class="mm-nav-actions">
+      <!-- Theme toggle -->
+      <button class="mm-theme-btn" id="themeToggle" title="Toggle theme">
+        <i class="fas fa-sun" id="themeIcon"></i>
+      </button>
+
+      <!-- Auth / User icons filled by nav.js -->
+      <div id="navUserArea">
+        <div class="mm-auth-links">
+          <a href="/register" class="mm-btn mm-btn-ghost mm-btn-sm">Register</a>
+          <a href="/login"    class="mm-btn mm-btn-primary mm-btn-sm">Login</a>
+        </div>
+      </div>
+
+      <!-- Hamburger -->
+      <button class="mm-ham" id="mmHam" aria-label="Menu">
+        <span class="mm-ham-bar" id="h1"></span>
+        <span class="mm-ham-bar" id="h2"></span>
+        <span class="mm-ham-bar" id="h3"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Nav links row -->
+  <div class="mm-navlinks-row">
+    <div class="mm-navlinks">
+      <a href="/userhome"          class="mm-navlink">Home</a>
+      <a href="/categories"        class="mm-navlink">Categories</a>
+      <a href="/viewallproducts"   class="mm-navlink">Shop</a>
+      <a href="/aboutus"           class="mm-navlink">About</a>
+      <a href="/contactus"         class="mm-navlink">Contact</a>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mm-mobile-nav" id="mobileMenu">
+    <!-- Mobile search -->
+    <div class="mm-mobile-search">
+      <input class="mm-mobile-search-input" id="mobileSearchInput" type="text" placeholder="Search products…" autocomplete="off">
+    </div>
+    <a href="/userhome"          class="mm-mobile-link"><i class="fas fa-home" style="width:1.25rem;text-align:center;"></i> Home</a>
+    <a href="/categories"        class="mm-mobile-link"><i class="fas fa-th-list" style="width:1.25rem;text-align:center;"></i> Categories</a>
+    <a href="/viewallproducts"   class="mm-mobile-link"><i class="fas fa-shopping-bag" style="width:1.25rem;text-align:center;"></i> Shop</a>
+    <a href="/aboutus"           class="mm-mobile-link"><i class="fas fa-info-circle" style="width:1.25rem;text-align:center;"></i> About</a>
+    <a href="/contactus"         class="mm-mobile-link"><i class="fas fa-envelope" style="width:1.25rem;text-align:center;"></i> Contact</a>
+    <!-- mobile auth filled by nav.js -->
+    <div id="mobileAuthArea" style="padding:.75rem 1.5rem;display:flex;gap:.75rem;border-bottom:1px solid var(--border);">
+      <a href="/login"    class="mm-btn mm-btn-primary mm-btn-sm" style="flex:1;justify-content:center;">Login</a>
+      <a href="/register" class="mm-btn mm-btn-ghost  mm-btn-sm" style="flex:1;justify-content:center;">Register</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Theme ────────────────────────────────────────────────────────
+(function(){
+  const saved = localStorage.getItem('mmTheme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.className = saved === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+})();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur  = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('mmTheme', next);
+  const icon = document.getElementById('themeIcon');
+  icon.className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+});
+
+// ── Hamburger ─────────────────────────────────────────────────────
+const ham  = document.getElementById('mmHam');
+const menu = document.getElementById('mobileMenu');
+ham.addEventListener('click', () => {
+  const open = menu.classList.toggle('open');
+  document.getElementById('h1').style.transform = open ? 'translateY(6.5px) rotate(45deg)'  : '';
+  document.getElementById('h2').style.opacity   = open ? '0' : '1';
+  document.getElementById('h3').style.transform = open ? 'translateY(-6.5px) rotate(-45deg)' : '';
+});
+
+// ── Active link ───────────────────────────────────────────────────
+document.querySelectorAll('.mm-navlink,.mm-mobile-link').forEach(l => {
+  if (l.href && window.location.pathname === new URL(l.href, location.origin).pathname)
+    l.classList.add('active');
+});
+
+// ── Search suggestions ────────────────────────────────────────────
+function setupSearch(inputId, listId) {
+  const inp  = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  if (!inp) return;
+  inp.addEventListener('input', async () => {
+    const q = inp.value.trim();
+    if (!q) { if(list) list.style.display='none'; return; }
+    try {
+      const data = await (await fetch(`/search?query=${encodeURIComponent(q)}`)).json();
+      if (!list) return;
+      if (!data.length) { list.style.display='none'; return; }
+      list.innerHTML = data.slice(0,8).map(p => `<li class="mm-suggestion-item"><a href="/viewuser?id=${p._id}"><i class="fas fa-search" style="font-size:.75rem;color:var(--ink-5);"></i> ${p.name}</a></li>`).join('');
+      list.style.display = 'block';
+    } catch {}
+  });
+  document.addEventListener('click', e => { if(list && !inp.contains(e.target)) list.style.display='none'; });
+}
+setupSearch('desktopSearchInput','desktopSuggestions');
+</script>

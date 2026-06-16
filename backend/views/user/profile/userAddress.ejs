@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico"><title>Addresses — ManMode</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>(function(){const t=localStorage.getItem('mmTheme')||'light';document.documentElement.setAttribute('data-theme',t);})()</script>
+</head>
+<body>
+<%- include('../common-ele/nav') %>
+
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+  <div class="mm-profile-wrap">
+    <!-- Sidebar -->
+    <aside class="mm-profile-sidebar">
+      <div class="mm-profile-top">
+        <div class="mm-profile-av-placeholder" id="sideAvatar">M</div>
+        <p class="mm-profile-uname" id="sideUserName">My Account</p>
+      </div>
+      <nav class="mm-profile-nav">
+        <a href="/userprofile"  class="mm-profile-navlink"><i class="fas fa-user" style="width:1rem;"></i> My Profile</a>
+        <a href="/useraddress"  class="mm-profile-navlink active"><i class="fas fa-map-marker-alt" style="width:1rem;"></i> Addresses</a>
+        <a href="/userorders"   class="mm-profile-navlink"><i class="fas fa-box" style="width:1rem;"></i> My Orders</a>
+        <a href="/userwallet"   class="mm-profile-navlink"><i class="fas fa-wallet" style="width:1rem;"></i> Wallet</a>
+        <a href="/userwishlist" class="mm-profile-navlink"><i class="fas fa-heart" style="width:1rem;"></i> Wishlist</a>
+        <a href="/logout" class="mm-profile-navlink" style="color:var(--red);"><i class="fas fa-sign-out-alt" style="width:1rem;"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main>
+      <div class="mm-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;">
+          <div>
+            <h2 style="font-size:1.25rem;font-weight:800;color:var(--ink);">Saved Addresses</h2>
+            <p style="font-size:.875rem;color:var(--ink-4);margin-top:.25rem;">Manage your delivery addresses</p>
+          </div>
+          <button class="mm-btn mm-btn-primary mm-btn-sm" id="showAddFormBtn">
+            <i class="fas fa-plus"></i> Add New Address
+          </button>
+        </div>
+
+        <!-- Address list -->
+        <div id="addressList">
+          <div style="text-align:center;padding:2.5rem;"><div class="mm-spinner" style="margin:0 auto .875rem;"></div><p style="color:var(--ink-4);">Loading addresses…</p></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Address Form Modal (add/edit) -->
+<div id="addressModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:9000;display:none;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--surface);border-radius:var(--r-xl);max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.375rem 1.5rem;border-bottom:1px solid var(--border);">
+      <h3 style="font-size:1.0625rem;font-weight:800;color:var(--ink);" id="modalTitle">Add New Address</h3>
+      <button onclick="closeAddressModal()" style="width:32px;height:32px;border-radius:50%;background:var(--bg-2);border:none;cursor:pointer;font-size:.875rem;color:var(--ink-3);display:flex;align-items:center;justify-content:center;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div style="padding:1.5rem;">
+      <form id="addressForm" style="display:flex;flex-direction:column;gap:1rem;">
+        <input type="hidden" id="editingAddressId">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label class="mm-label">Full Name *</label><input type="text" class="mm-input" id="addrName" placeholder="Recipient name" required></div>
+          <div><label class="mm-label">Phone *</label><input type="text" class="mm-input" id="addrPhone" placeholder="10-digit mobile" required maxlength="10"></div>
+        </div>
+        <div><label class="mm-label">Address (House, Street) *</label><textarea class="mm-input" id="addrAddress" placeholder="House no., building, street…" rows="2" required></textarea></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label class="mm-label">Locality *</label><input type="text" class="mm-input" id="addrLocality" placeholder="Area / locality" required></div>
+          <div><label class="mm-label">Pincode *</label><input type="text" class="mm-input" id="addrPincode" placeholder="6-digit pincode" required maxlength="6"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label class="mm-label">City *</label><input type="text" class="mm-input" id="addrCity" placeholder="City / town" required></div>
+          <div>
+            <label class="mm-label">State *</label>
+            <select class="mm-input" id="addrState" required style="appearance:auto;">
+              <option value="" disabled selected>Select state</option>
+              <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Delhi</option><option>Chandigarh</option><option>Puducherry</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div><label class="mm-label">Landmark</label><input type="text" class="mm-input" id="addrLandmark" placeholder="Nearby landmark (optional)"></div>
+          <div><label class="mm-label">Alt. Phone</label><input type="text" class="mm-input" id="addrAltPhone" placeholder="Alternative number" maxlength="10"></div>
+        </div>
+        <div style="display:flex;gap:.75rem;padding-top:.25rem;">
+          <button type="submit" class="mm-btn mm-btn-primary" id="addrSubmitBtn">Save Address</button>
+          <button type="button" class="mm-btn mm-btn-ghost" onclick="closeAddressModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../common-ele/footer') %>
+<script src="/js/nav.js"></script>
+<script>
+const modal = document.getElementById('addressModal');
+
+function openAddressModal(editData) {
+  document.getElementById('editingAddressId').value = editData?._id || '';
+  document.getElementById('modalTitle').textContent  = editData ? 'Edit Address' : 'Add New Address';
+  document.getElementById('addrSubmitBtn').textContent = editData ? 'Update Address' : 'Save Address';
+  document.getElementById('addrName').value     = editData?.name     || '';
+  document.getElementById('addrPhone').value    = editData?.phone    || '';
+  document.getElementById('addrAddress').value  = editData?.address  || '';
+  document.getElementById('addrLocality').value = editData?.locality || '';
+  document.getElementById('addrPincode').value  = editData?.zipCode  || '';
+  document.getElementById('addrCity').value     = editData?.city     || '';
+  document.getElementById('addrState').value    = editData?.state    || '';
+  document.getElementById('addrLandmark').value = editData?.landmark || '';
+  document.getElementById('addrAltPhone').value = editData?.altPhone || '';
+  modal.style.display = 'flex';
+}
+function closeAddressModal() { modal.style.display = 'none'; }
+modal.addEventListener('click', e => { if(e.target===modal) closeAddressModal(); });
+document.getElementById('showAddFormBtn').onclick = () => openAddressModal(null);
+
+async function fetchAddresses() {
+  try {
+    const res = await fetch('/get-user-addresses');
+    const d   = await res.json();
+    const addrs = d.addresses || [];
+    const list  = document.getElementById('addressList');
+    if(!addrs.length){
+      list.innerHTML=`<div style="text-align:center;padding:3rem;color:var(--ink-4);">
+        <i class="fas fa-map-marker-alt" style="font-size:2.5rem;margin-bottom:.875rem;display:block;"></i>
+        <p style="font-size:1rem;font-weight:600;color:var(--ink-2);margin-bottom:.375rem;">No addresses saved</p>
+        <p>Add a delivery address to get started</p>
+      </div>`;
+      return;
+    }
+    list.innerHTML=`<div style="display:flex;flex-direction:column;gap:1rem;">
+      ${addrs.map(a=>`
+        <div style="background:var(--bg-2);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:.625rem;margin-bottom:.625rem;">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-home" style="font-size:.75rem;color:var(--gold);"></i>
+              </div>
+              <span style="font-weight:700;font-size:.9375rem;color:var(--ink);">${a.name}</span>
+              <span style="font-size:.8125rem;color:var(--ink-4);">${a.phone}</span>
+            </div>
+            <p style="font-size:.875rem;color:var(--ink-3);line-height:1.6;">${a.address}, ${a.locality}, ${a.city}, ${a.state} — ${a.zipCode}</p>
+            ${a.landmark?`<p style="font-size:.8125rem;color:var(--ink-4);margin-top:.25rem;"><i class="fas fa-map-pin" style="margin-right:.25rem;"></i>${a.landmark}</p>`:''}
+            ${a.altPhone?`<p style="font-size:.8125rem;color:var(--ink-4);margin-top:.125rem;"><i class="fas fa-phone" style="margin-right:.25rem;"></i>Alt: ${a.altPhone}</p>`:''}
+          </div>
+          <div style="display:flex;gap:.5rem;flex-shrink:0;">
+            <button class="mm-btn mm-btn-ghost mm-btn-sm" onclick='editAddress(${JSON.stringify(a)})'>
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="mm-btn mm-btn-ghost mm-btn-sm" style="color:var(--red);border-color:var(--red);" onclick="deleteAddress('${a._id}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  } catch(e) { console.error(e); }
+}
+
+function editAddress(addr) { openAddressModal(addr); }
+
+async function deleteAddress(id) {
+  const r = await Swal.fire({ title:'Delete address?', text:'This cannot be undone.', icon:'warning', showCancelButton:true, confirmButtonColor:'var(--red)', cancelButtonColor:'var(--border-2)', confirmButtonText:'Delete' });
+  if(!r.isConfirmed)return;
+  const res = await fetch(`/delete-user-address/${id}`,{method:'DELETE'});
+  if(res.ok){ Swal.fire({title:'Deleted',icon:'success',timer:1200,showConfirmButton:false,confirmButtonColor:'var(--gold)'}); fetchAddresses(); }
+}
+
+document.getElementById('addressForm').onsubmit = async e => {
+  e.preventDefault();
+  const id  = document.getElementById('editingAddressId').value;
+  const data = {
+    name:    document.getElementById('addrName').value.trim(),
+    phone:   document.getElementById('addrPhone').value.trim(),
+    address: document.getElementById('addrAddress').value.trim(),
+    locality:document.getElementById('addrLocality').value.trim(),
+    zipCode: document.getElementById('addrPincode').value.trim(),
+    city:    document.getElementById('addrCity').value.trim(),
+    state:   document.getElementById('addrState').value,
+    landmark:document.getElementById('addrLandmark').value.trim(),
+    altPhone:document.getElementById('addrAltPhone').value.trim(),
+  };
+  try {
+    const url = id ? `/update-user-address/${id}` : '/add-user-address';
+    const method = id ? 'PUT' : 'POST';
+    const body = id ? JSON.stringify(data) : JSON.stringify({addressData:data});
+    const res = await fetch(url,{method,headers:{'Content-Type':'application/json'},body});
+    const d   = await res.json();
+    if(res.ok){
+      closeAddressModal();
+      Swal.fire({title:id?'Updated!':'Saved!',icon:'success',timer:1200,showConfirmButton:false,confirmButtonColor:'var(--gold)'});
+      fetchAddresses();
+    } else Swal.fire({title:'Error',text:d.error||'Failed to save.',icon:'error',confirmButtonColor:'var(--gold)'});
+  } catch(e){ Swal.fire({title:'Error',text:'Something went wrong.',icon:'error',confirmButtonColor:'var(--gold)'}); }
+};
+
+// Load user name for sidebar
+fetch('/getuserprofile').then(r=>r.json()).then(d=>{
+  document.getElementById('sideUserName').textContent=d.name||'My Account';
+  const av=document.getElementById('sideAvatar');
+  if(d.googleImage||d.image){
+    const img=document.createElement('img');
+    img.className='mm-profile-av';
+    img.style.margin='0 auto .875rem';
+    const src=d.googleImage?d.googleImage:`/uploaded-images/${(d.image||'').replace(/\\/g,'/').replace(/^uploads\/|^\/uploads\//,'').replace('uploaded-images/','').trim()}`;
+    img.src=src;img.onerror=()=>img.remove();
+    av.replaceWith(img);
+  } else av.textContent=d.name?.[0]?.toUpperCase()||'M';
+}).catch(()=>{});
+
+fetchAddresses();
+</script>
+</body>
+</html>

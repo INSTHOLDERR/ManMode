@@ -1,0 +1,78 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/images/logo.ico"><title>Users — ManMode Admin</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/admin.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head><body>
+<% const currentPage='users' %>
+<%- include('./commonpages/sidebar') %>
+<div class="adm-main">
+  <header class="adm-topbar">
+    <button class="adm-ham" id="admHamBtn"><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span></button>
+    <div><div class="adm-topbar-title">Users</div><div class="adm-topbar-sub">Manage customer accounts</div></div>
+  </header>
+  <div class="adm-content">
+    <div class="adm-stats" style="margin-bottom:1.5rem;">
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-blue-pale);color:var(--adm-blue);"><i class="fas fa-users"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Total Users</div><div class="adm-stat-value" id="totalUsersCount">0</div></div></div>
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-green-pale);color:var(--adm-green);"><i class="fas fa-user-check"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Active</div><div class="adm-stat-value" id="activeUsersCount">0</div></div></div>
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-red-pale);color:var(--adm-red);"><i class="fas fa-user-slash"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Blocked</div><div class="adm-stat-value" id="blockedUsersCount">0</div></div></div>
+    </div>
+    <div class="adm-card">
+      <div class="adm-card-header">
+        <span class="adm-card-title"><i class="fas fa-users"></i> All Users</span>
+        <div class="adm-search-bar"><i class="fas fa-search"></i><input type="text" id="searchBox" placeholder="Search users…"></div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Joined</th><th>Action</th></tr></thead>
+          <tbody id="usersTableBody"><tr><td colspan="7" style="text-align:center;padding:3rem;"><div class="adm-spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+let allUsers=[];
+async function loadUsers(){
+  const res=await fetch('/admin/getallusers');
+  const d=await res.json();
+  allUsers=d.data||[];
+  document.getElementById('totalUsersCount').textContent=d.counts?.total||allUsers.length;
+  document.getElementById('activeUsersCount').textContent=d.counts?.active||allUsers.filter(u=>u.isActive).length;
+  document.getElementById('blockedUsersCount').textContent=d.counts?.blocked||allUsers.filter(u=>!u.isActive).length;
+  renderUsers(allUsers);
+}
+function renderUsers(users){
+  const tb=document.getElementById('usersTableBody');
+  if(!users.length){tb.innerHTML='<tr><td colspan="7"><div class="adm-empty"><i class="fas fa-users"></i><h3>No users found</h3></div></td></tr>';return;}
+  tb.innerHTML=users.map((u,i)=>`
+    <tr>
+      <td style="color:var(--adm-ink-4);font-size:.8125rem;">${i+1}</td>
+      <td><div style="display:flex;align-items:center;gap:.625rem;">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--adm-accent);color:#000;font-weight:700;font-size:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${u.name?.[0]?.toUpperCase()||'U'}</div>
+        <span style="font-weight:600;">${u.name}</span>
+      </div></td>
+      <td>${u.email}</td>
+      <td>${u.number||'—'}</td>
+      <td><span class="adm-badge ${u.isActive?'adm-badge-green':'adm-badge-red'}">${u.isActive?'Active':'Blocked'}</span></td>
+      <td style="font-size:.8125rem;color:var(--adm-ink-3);">${new Date(u.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+      <td><button class="adm-btn ${u.isActive?'adm-btn-danger':'adm-btn-success'} adm-btn-sm" onclick="toggleUser('${u._id}',${u.isActive})">
+        <i class="fas fa-${u.isActive?'ban':'check'}"></i> ${u.isActive?'Block':'Unblock'}
+      </button></td>
+    </tr>`).join('');
+}
+async function toggleUser(id,current){
+  const newStatus=!current;
+  const result=await Swal.fire({title:`${newStatus?'Unblock':'Block'} user?`,text:'Are you sure?',icon:'question',showCancelButton:true,confirmButtonColor:newStatus?'#16a34a':'#dc2626',confirmButtonText:`Yes, ${newStatus?'Unblock':'Block'}`});
+  if(!result.isConfirmed)return;
+  await fetch(`/admin/changestatus/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({isActive:newStatus})});
+  loadUsers();
+}
+document.getElementById('searchBox').oninput=function(){
+  const q=this.value.toLowerCase();
+  renderUsers(allUsers.filter(u=>u.name?.toLowerCase().includes(q)||u.email?.toLowerCase().includes(q)));
+};
+loadUsers();
+</script>
+</body></html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>Shop All — ManMode</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<%- include('./common-ele/nav') %>
+<div class="container">
+  <div class="mm-page-head">
+    <p class="mm-breadcrumb"><a href="/userhome">Home</a><span>›</span>Shop</p>
+    <h1 class="mm-page-title">All Products</h1>
+  </div>
+  <div class="mm-filter-row">
+    <select id="sortSelect" class="mm-select" style="max-width:200px;">
+      <option value="">Sort By</option>
+      <option value="priceLowToHigh">Price: Low → High</option>
+      <option value="priceHighToLow">Price: High → Low</option>
+      <option value="averageRating">Highest Rated</option>
+      <option value="newArrivals">New Arrivals</option>
+      <option value="aToZ">A → Z</option>
+      <option value="zToA">Z → A</option>
+    </select>
+    <span class="mm-result-count" id="resultCount"></span>
+  </div>
+  <div class="mm-grid" id="productsGrid">
+    <div class="mm-loading"><div class="mm-spinner"></div><span>Loading…</span></div>
+  </div>
+  <div class="mm-pagination">
+    <button id="prevBtn" class="mm-btn mm-btn-ghost mm-btn-sm" disabled>← Prev</button>
+    <span class="mm-page-info" id="pageInfo">Page 1</span>
+    <button id="nextBtn" class="mm-btn mm-btn-ghost mm-btn-sm">Next →</button>
+  </div>
+</div>
+<%- include('./common-ele/footer') %>
+<script src="/js/nav.js"></script>
+<script>
+let allProds=[], curPage=1, limit=12;
+function buildCard(p){
+  const imgPath=(p.images&&p.images[0])?p.images[0].replace(/\\/g,'/').replace(/^uploads\/|^\/uploads\//,'').replace('uploaded-images/','').replace('uploaded-images\\','').trim():'';
+  const imgSrc=imgPath?`/uploaded-images/${imgPath}`:'/images/manmode.jpg';
+  const disc=(p.price&&p.offerPrice&&p.price>p.offerPrice)?Math.round((1-p.offerPrice/p.price)*100):0;
+  return`<a href="/viewuser?id=${p._id}" style="text-decoration:none;"><div class="mm-product-card">
+    <div class="mm-product-img-box">
+      <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.src='/images/manmode.jpg'">
+      ${disc>0?`<span class="mm-product-badge">-${disc}%</span>`:''}
+      <div class="mm-product-overlay"><span class="mm-product-overlay-btn">View Product</span></div>
+    </div>
+    <div class="mm-product-body">
+      <p class="mm-product-name">${p.name}</p>
+      <p class="mm-product-price">₹${Number(p.offerPrice).toFixed(0)}${disc>0?`<span class="mm-product-original">₹${Number(p.price).toFixed(0)}</span>`:''}</p>
+    </div>
+  </div></a>`;
+}
+function render(prods){
+  const g=document.getElementById('productsGrid');
+  document.getElementById('resultCount').textContent=`${prods.length} products`;
+  g.innerHTML=prods.length?prods.map(buildCard).join(''):`<p class="mm-muted" style="grid-column:1/-1;text-align:center;padding:3rem;">No products found.</p>`;
+}
+document.getElementById('sortSelect').onchange=function(){
+  const v=this.value,s=[...allProds];
+  if(v==='priceLowToHigh')s.sort((a,b)=>a.offerPrice-b.offerPrice);
+  else if(v==='priceHighToLow')s.sort((a,b)=>b.offerPrice-a.offerPrice);
+  else if(v==='averageRating')s.sort((a,b)=>(b.averageRating||0)-(a.averageRating||0));
+  else if(v==='newArrivals')s.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  else if(v==='aToZ')s.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(v==='zToA')s.sort((a,b)=>b.name.localeCompare(a.name));
+  render(s);
+};
+async function load(page){
+  document.getElementById('productsGrid').innerHTML='<div class="mm-loading"><div class="mm-spinner"></div><span>Loading…</span></div>';
+  try{
+    const d=await(await fetch(`/getallproducts?page=${page}&limit=${limit}`)).json();
+    allProds=d.products||[];render(allProds);
+    document.getElementById('pageInfo').textContent=`Page ${d.currentPage} of ${d.totalPages}`;
+    document.getElementById('prevBtn').disabled=d.currentPage<=1;
+    document.getElementById('nextBtn').disabled=d.currentPage>=d.totalPages;
+  }catch(e){document.getElementById('productsGrid').innerHTML='<p class="mm-muted" style="grid-column:1/-1;text-align:center;padding:3rem;">Failed to load products.</p>';}
+}
+document.getElementById('prevBtn').onclick=()=>{if(curPage>1)load(--curPage);};
+document.getElementById('nextBtn').onclick=()=>load(++curPage);
+load(curPage);
+</script>
+</body>
+</html>

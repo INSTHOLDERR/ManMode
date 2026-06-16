@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>ManMode — Premium Men's Fashion</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<%- include('./common-ele/nav') %>
+
+<!-- Hero -->
+<section class="mm-hero">
+  <div class="mm-hero-wrap">
+    <div class="mm-hero-slides" id="heroSlides"></div>
+    <button class="mm-carousel-prev" id="heroPrev"><i class="fas fa-chevron-left"></i></button>
+    <button class="mm-carousel-next" id="heroNext"><i class="fas fa-chevron-right"></i></button>
+    <div class="mm-hero-dots" id="heroDots"></div>
+  </div>
+</section>
+
+<!-- Feature strip -->
+<div class="mm-features">
+  <div class="mm-feature-item"><div class="mm-feature-icon">🚚</div><p class="mm-feature-title">Free Shipping</p><p class="mm-feature-sub">On orders above ₹999</p></div>
+  <div class="mm-feature-item"><div class="mm-feature-icon">↩️</div><p class="mm-feature-title">Easy Returns</p><p class="mm-feature-sub">30-day hassle-free</p></div>
+  <div class="mm-feature-item"><div class="mm-feature-icon">🔒</div><p class="mm-feature-title">Secure Checkout</p><p class="mm-feature-sub">100% safe payments</p></div>
+  <div class="mm-feature-item"><div class="mm-feature-icon">💬</div><p class="mm-feature-title">24/7 Support</p><p class="mm-feature-sub">Always here to help</p></div>
+</div>
+
+<!-- Brands -->
+<section class="mm-section mm-section-alt">
+  <div class="container">
+    <div class="mm-section-header">
+      <div>
+        <p class="mm-section-eyebrow">Our Partners</p>
+        <h2 class="mm-section-title">Top Brands</h2>
+      </div>
+      <a href="/viewallproducts" class="mm-see-all">Shop All <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="mm-brands-scroll" id="brandsRow">
+      <div class="mm-loading"><div class="mm-spinner"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="mm-section">
+  <div class="container">
+    <div class="mm-section-header">
+      <div>
+        <p class="mm-section-eyebrow">Just In</p>
+        <h2 class="mm-section-title">New Arrivals</h2>
+        <p class="mm-section-sub">Fresh drops, updated weekly</p>
+      </div>
+      <a href="/viewallproducts" class="mm-see-all">View All <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="mm-grid" id="newArrivalsGrid">
+      <div class="mm-loading"><div class="mm-spinner"></div><span>Loading…</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured -->
+<section class="mm-section mm-section-alt">
+  <div class="container">
+    <div class="mm-section-header">
+      <div>
+        <p class="mm-section-eyebrow">Handpicked</p>
+        <h2 class="mm-section-title">Featured Products</h2>
+        <p class="mm-section-sub">Curated for you</p>
+      </div>
+      <a href="/viewallproducts" class="mm-see-all">See More <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="mm-grid" id="featuredGrid">
+      <div class="mm-loading"><div class="mm-spinner"></div><span>Loading…</span></div>
+    </div>
+  </div>
+</section>
+
+<%- include('./common-ele/footer') %>
+<script src="/js/nav.js"></script>
+
+<script>
+// ── Hero ──────────────────────────────────────────────────────────────────
+const slidesEl = document.getElementById('heroSlides');
+const dotsEl   = document.getElementById('heroDots');
+let cur = 0, timer;
+let heroData = [];
+
+const FALLBACK_BANNERS = [
+  { image:'/images/banners/banner1.jpg', title:'Dress Like a Gentleman', subtitle:'Premium menswear for the modern man.', btnText:'Shop Now', btnLink:'/viewallproducts' },
+  { image:'/images/banners/banner2.jpg', title:'Own Your Signature Style', subtitle:'Curated picks from top fashion houses.', btnText:'Browse Brands', btnLink:'/viewallproducts' },
+  { image:'/images/banners/banner3.jpg', title:'New Arrivals Are Here', subtitle:'Be first to wear the latest trends.', btnText:'Explore', btnLink:'/viewallproducts' },
+];
+
+function getImgUrl(img) {
+  if (!img) return '/images/manmode.jpg';
+  if (img.startsWith('http')) return img;
+  return '/uploaded-images/' + img.replace(/^.*uploaded-images[/\\]/, '');
+}
+
+function buildSlides(data) {
+  slidesEl.innerHTML = '';
+  dotsEl.innerHTML   = '';
+  heroData = data;
+  data.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'mm-hero-slide';
+    el.innerHTML = `
+      <img src="${getImgUrl(d.image)}" alt="${d.title||'Banner'}" loading="${i===0?'eager':'lazy'}" onerror="this.src='/images/manmode.jpg'">
+      <div class="mm-hero-overlay">
+        <div class="mm-hero-text">
+          ${d.title ? `<h1 class="mm-hero-title">${d.title}</h1>` : ''}
+          ${d.subtitle ? `<p class="mm-hero-sub">${d.subtitle}</p>` : ''}
+          <div class="mm-hero-btns">
+            <a href="${d.btnLink||'/viewallproducts'}" class="mm-btn mm-btn-primary mm-btn-lg">${d.btnText||'Shop Now'}</a>
+            <a href="/categories" class="mm-btn mm-btn-outline mm-btn-lg" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.6);color:#fff;">Categories</a>
+          </div>
+        </div>
+      </div>`;
+    slidesEl.appendChild(el);
+    const dot = document.createElement('button');
+    dot.className = 'mm-hero-dot' + (i===0?' active':'');
+    dot.onclick   = () => goTo(i);
+    dotsEl.appendChild(dot);
+  });
+  goTo(0);
+  start();
+}
+
+async function loadBanners() {
+  try {
+    const res  = await fetch('/admin/getbanners');
+    const data = await res.json();
+    const active = data.filter(b => b.isActive);
+    buildSlides(active.length ? active : FALLBACK_BANNERS);
+  } catch {
+    buildSlides(FALLBACK_BANNERS);
+  }
+}
+loadBanners();
+
+function goTo(n) {
+  if (!heroData.length) return;
+  cur = (n + heroData.length) % heroData.length;
+  slidesEl.style.transform = `translateX(-${cur*100}%)`;
+  document.querySelectorAll('.mm-hero-dot').forEach((d,i) => d.classList.toggle('active', i===cur));
+}
+document.getElementById('heroPrev').onclick = () => { clearInterval(timer); goTo(cur-1); start(); };
+document.getElementById('heroNext').onclick = () => { clearInterval(timer); goTo(cur+1); start(); };
+function start() { clearInterval(timer); if(heroData.length>1) timer = setInterval(() => goTo(cur+1), 5000); }
+
+
+// ── Product card builder ───────────────────────────────────────────────────
+function buildCard(p) {
+  const imgPath  = (p.images&&p.images[0]) ? p.images[0].replace(/\\/g,'/').replace(/^uploads\/|^\/uploads\//,'') : '';
+  const imgSrc   = imgPath ? `/uploaded-images/${imgPath.replace('uploaded-images/','').replace('uploaded-images\\','').trim()}` : '/images/manmode.jpg';
+  const disc     = (p.price && p.offerPrice && p.price > p.offerPrice) ? Math.round((1-p.offerPrice/p.price)*100) : 0;
+  return `
+    <a href="/viewuser?id=${p._id}" style="text-decoration:none;">
+      <div class="mm-product-card">
+        <div class="mm-product-img-box">
+          <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.src='/images/manmode.jpg'">
+          ${disc>0?`<span class="mm-product-badge">-${disc}%</span>`:''}
+          <div class="mm-product-overlay">
+            <span class="mm-product-overlay-btn">Quick View</span>
+          </div>
+        </div>
+        <div class="mm-product-body">
+          <p class="mm-product-name">${p.name}</p>
+          <p class="mm-product-price">
+            ₹${Number(p.offerPrice).toFixed(0)}
+            ${disc>0?`<span class="mm-product-original">₹${Number(p.price).toFixed(0)}</span>`:''}
+          </p>
+        </div>
+      </div>
+    </a>`;
+}
+
+// ── Brands ─────────────────────────────────────────────────────────────────
+async function fetchBrands() {
+  try {
+    const brands = await (await fetch('/homebrands')).json();
+    document.getElementById('brandsRow').innerHTML = brands.length
+      ? brands.map(b => {
+          const src = b.image ? `/uploaded-images/${b.image.replace(/\\/g,'/').replace(/^uploads\/|^\/uploads\//,'').replace('uploaded-images/','').replace('uploaded-images\\','')}` : '/images/manmode.jpg';
+          return `<div class="mm-brand-tile" onclick="location.href='/brandproductsare?id=${b._id}'" role="button">
+            <img src="${src}" alt="${b.name}" onerror="this.style.display='none'">
+            <span class="mm-brand-tile-name">${b.name}</span>
+          </div>`;
+        }).join('')
+      : '<p class="mm-muted">No brands available</p>';
+  } catch(e){ console.error(e); }
+}
+
+async function fetchProducts(url, gridId) {
+  try {
+    const prods = await (await fetch(url)).json();
+    document.getElementById(gridId).innerHTML = prods.length
+      ? prods.map(buildCard).join('')
+      : `<p class="mm-muted" style="grid-column:1/-1;text-align:center;padding:2rem;">No products found</p>`;
+  } catch(e) {
+    document.getElementById(gridId).innerHTML = '<p class="mm-muted" style="grid-column:1/-1;text-align:center;padding:2rem;">Failed to load</p>';
+  }
+}
+
+fetchBrands();
+fetchProducts('/homelatestproduct', 'newArrivalsGrid');
+fetchProducts('/randomproducts',    'featuredGrid');
+</script>
+</body>
+</html>

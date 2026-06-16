@@ -1,0 +1,12 @@
+{
+  "name": "manmode-frontend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "ManMode Frontend (EJS views + static assets)",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

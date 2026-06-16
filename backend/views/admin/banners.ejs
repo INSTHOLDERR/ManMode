@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico"><title>Banners — ManMode Admin</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<% const currentPage='banners' %>
+<%- include('./commonpages/sidebar') %>
+<div class="adm-main">
+  <header class="adm-topbar">
+    <button class="adm-ham" id="admHamBtn"><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span></button>
+    <div>
+      <div class="adm-topbar-title">Banners</div>
+      <div class="adm-topbar-sub">Manage homepage hero banners</div>
+    </div>
+  </header>
+
+  <div class="adm-content">
+    <div class="adm-page-header">
+      <div>
+        <div class="adm-page-title">Hero Banners</div>
+        <div class="adm-page-sub">Banners appear in the homepage carousel. Add as many as you like.</div>
+      </div>
+      <button class="adm-btn adm-btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Banner
+      </button>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(201,168,76,.15);color:var(--adm-accent);">
+          <i class="fas fa-image"></i>
+        </div>
+        <div class="adm-stat-info">
+          <div class="adm-stat-val" id="totalCount">—</div>
+          <div class="adm-stat-label">Total Banners</div>
+        </div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(34,197,94,.15);color:#22c55e;">
+          <i class="fas fa-eye"></i>
+        </div>
+        <div class="adm-stat-info">
+          <div class="adm-stat-val" id="activeCount">—</div>
+          <div class="adm-stat-label">Active</div>
+        </div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-icon" style="background:rgba(239,68,68,.15);color:#ef4444;">
+          <i class="fas fa-eye-slash"></i>
+        </div>
+        <div class="adm-stat-info">
+          <div class="adm-stat-val" id="inactiveCount">—</div>
+          <div class="adm-stat-label">Hidden</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banners grid -->
+    <div class="adm-card">
+      <div class="adm-card-header">
+        <span class="adm-card-title"><i class="fas fa-images"></i> All Banners</span>
+      </div>
+      <div class="adm-card-body">
+        <div id="bannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;">
+          <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--adm-ink-4);">
+            <div class="adm-spinner" style="margin:0 auto 1rem;"></div>
+            <p>Loading banners…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Banner Modal -->
+<div id="bannerModal" style="display:none;" class="adm-modal-backdrop">
+  <div class="adm-modal" style="max-width:520px;">
+    <div class="adm-modal-header">
+      <span class="adm-modal-title" id="modalTitle">Add New Banner</span>
+      <button class="adm-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="adm-modal-body" style="display:flex;flex-direction:column;gap:1rem;">
+
+      <!-- Image upload -->
+      <div class="adm-form-group">
+        <label class="adm-label">Banner Image <span style="color:var(--adm-red)">*</span></label>
+        <div id="dropZone" class="adm-img-upload" onclick="document.getElementById('bannerFile').click()" ondragover="event.preventDefault();this.style.borderColor='var(--adm-accent)'" ondragleave="this.style.borderColor=''" ondrop="handleDrop(event)">
+          <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--adm-ink-4);"></i>
+          <p style="margin:.5rem 0 .25rem;font-weight:600;color:var(--adm-ink-2);">Click or drag to upload</p>
+          <small style="color:var(--adm-ink-4);">Recommended: 1200×500px · JPG/PNG · max 5MB</small>
+        </div>
+        <input type="file" id="bannerFile" accept="image/*" style="display:none" onchange="previewFile(this)">
+        <img id="bannerPreview" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin-top:.75rem;border:1px solid var(--adm-border);">
+        <p id="currentImageNote" style="display:none;font-size:.8125rem;color:var(--adm-ink-4);margin-top:.5rem;"><i class="fas fa-info-circle"></i> Leave blank to keep existing image</p>
+      </div>
+
+      <div class="adm-form-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="adm-form-group">
+          <label class="adm-label">Title <span style="color:var(--adm-red)">*</span></label>
+          <input class="adm-input" id="mTitle" placeholder="e.g. New Season 2025">
+        </div>
+        <div class="adm-form-group">
+          <label class="adm-label">Display Order</label>
+          <input class="adm-input" id="mOrder" type="number" min="0" value="0" placeholder="0 = first">
+        </div>
+      </div>
+
+      <div class="adm-form-group">
+        <label class="adm-label">Subtitle</label>
+        <input class="adm-input" id="mSubtitle" placeholder="Short description (optional)">
+      </div>
+
+      <div class="adm-form-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="adm-form-group">
+          <label class="adm-label">Button Text</label>
+          <input class="adm-input" id="mBtnText" placeholder="Shop Now">
+        </div>
+        <div class="adm-form-group">
+          <label class="adm-label">Button Link</label>
+          <input class="adm-input" id="mBtnLink" placeholder="/viewallproducts">
+        </div>
+      </div>
+    </div>
+    <div class="adm-modal-footer">
+      <button class="adm-btn adm-btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="adm-btn adm-btn-primary" id="modalSaveBtn" onclick="saveBanner()">
+        <i class="fas fa-save"></i> Save Banner
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let editingId = null;
+let banners   = [];
+
+// ── Fetch & render ────────────────────────────────────────────────
+async function loadBanners() {
+  try {
+    const res  = await fetch('/admin/getbanners');
+    banners = await res.json();
+    renderGrid();
+    updateStats();
+  } catch(e) {
+    document.getElementById('bannersGrid').innerHTML =
+      '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--adm-ink-4);"><i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--adm-red)"></i><p>Failed to load banners.</p></div>';
+  }
+}
+
+function updateStats() {
+  const active = banners.filter(b => b.isActive).length;
+  document.getElementById('totalCount').textContent   = banners.length;
+  document.getElementById('activeCount').textContent  = active;
+  document.getElementById('inactiveCount').textContent = banners.length - active;
+}
+
+function getImageUrl(filename) {
+  if (!filename) return '';
+  if (filename.startsWith('http')) return filename; // Cloudinary
+  return '/uploaded-images/' + filename.replace(/^.*uploaded-images[/\\]/, '');
+}
+
+function renderGrid() {
+  const grid = document.getElementById('bannersGrid');
+  if (!banners.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:var(--adm-ink-4);">
+      <i class="fas fa-image" style="font-size:3rem;margin-bottom:1rem;display:block;"></i>
+      <p style="font-size:1rem;font-weight:600;margin-bottom:.5rem;">No banners yet</p>
+      <p style="font-size:.875rem;">Click "Add Banner" to create your first homepage banner.</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = banners.map(b => `
+    <div style="border:1px solid var(--adm-border);border-radius:14px;overflow:hidden;background:var(--adm-surface);transition:box-shadow .2s;" onmouseenter="this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'" onmouseleave="this.style.boxShadow=''">
+      <div style="height:170px;background:var(--adm-bg);position:relative;overflow:hidden;">
+        ${b.image ? `<img src="${getImageUrl(b.image)}?t=${Date.now()}" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=&quot;height:100%;display:flex;align-items:center;justify-content:center;color:var(--adm-ink-4);&quot;><i class=&quot;fas fa-image&quot; style=&quot;font-size:2.5rem;&quot;></i></div>'">` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--adm-ink-4);"><i class="fas fa-image" style="font-size:2.5rem;"></i></div>`}
+        <div style="position:absolute;top:.625rem;right:.625rem;">
+          <span class="adm-badge ${b.isActive ? 'adm-badge-green' : 'adm-badge-red'}">${b.isActive ? 'Active' : 'Hidden'}</span>
+        </div>
+        ${b.order !== undefined ? `<div style="position:absolute;top:.625rem;left:.625rem;background:rgba(0,0,0,.6);color:#fff;font-size:.72rem;font-weight:700;padding:.2rem .5rem;border-radius:9999px;">Order: ${b.order}</div>` : ''}
+      </div>
+      <div style="padding:1rem;">
+        <p style="font-size:.9375rem;font-weight:700;color:var(--adm-ink);margin-bottom:.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.title}</p>
+        ${b.subtitle ? `<p style="font-size:.8125rem;color:var(--adm-ink-4);margin-bottom:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.subtitle}</p>` : '<div style="margin-bottom:.75rem;"></div>'}
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" onclick="openEditModal('${b._id}')">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="adm-btn adm-btn-sm ${b.isActive ? 'adm-btn-outline' : 'adm-btn-primary'}" onclick="toggleBanner('${b._id}',${b.isActive})" style="${b.isActive ? 'color:var(--adm-ink-3);' : ''}">
+            <i class="fas ${b.isActive ? 'fa-eye-slash' : 'fa-eye'}"></i> ${b.isActive ? 'Hide' : 'Show'}
+          </button>
+          <button class="adm-btn adm-btn-sm" style="background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25);" onclick="deleteBanner('${b._id}','${b.title.replace(/'/g,"\\'")}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Modal helpers ─────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add New Banner';
+  document.getElementById('mTitle').value    = '';
+  document.getElementById('mSubtitle').value = '';
+  document.getElementById('mBtnText').value  = 'Shop Now';
+  document.getElementById('mBtnLink').value  = '/viewallproducts';
+  document.getElementById('mOrder').value    = '0';
+  document.getElementById('bannerPreview').style.display = 'none';
+  document.getElementById('bannerFile').value = '';
+  document.getElementById('currentImageNote').style.display = 'none';
+  document.getElementById('dropZone').style.display = 'flex';
+  document.getElementById('bannerModal').style.display = 'flex';
+}
+
+function openEditModal(id) {
+  const b = banners.find(x => x._id === id);
+  if (!b) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Banner';
+  document.getElementById('mTitle').value    = b.title    || '';
+  document.getElementById('mSubtitle').value = b.subtitle || '';
+  document.getElementById('mBtnText').value  = b.btnText  || 'Shop Now';
+  document.getElementById('mBtnLink').value  = b.btnLink  || '/viewallproducts';
+  document.getElementById('mOrder').value    = b.order ?? 0;
+  document.getElementById('bannerFile').value = '';
+  // Show existing image
+  if (b.image) {
+    const prev = document.getElementById('bannerPreview');
+    prev.src = getImageUrl(b.image) + '?t=' + Date.now();
+    prev.style.display = 'block';
+    document.getElementById('currentImageNote').style.display = 'block';
+    document.getElementById('dropZone').style.display = 'none';
+  } else {
+    document.getElementById('bannerPreview').style.display = 'none';
+    document.getElementById('currentImageNote').style.display = 'none';
+    document.getElementById('dropZone').style.display = 'flex';
+  }
+  document.getElementById('bannerModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('bannerModal').style.display = 'none';
+  editingId = null;
+}
+
+// Click outside to close
+document.getElementById('bannerModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('bannerModal')) closeModal();
+});
+
+// ── File preview ──────────────────────────────────────────────────
+function previewFile(inp) {
+  const f = inp.files[0]; if (!f) return;
+  if (f.size > 5*1024*1024) {
+    Swal.fire({title:'File too large',text:'Max 5MB.',icon:'warning',confirmButtonColor:'#c9a84c'});
+    inp.value = ''; return;
+  }
+  const prev = document.getElementById('bannerPreview');
+  prev.src = URL.createObjectURL(f); prev.style.display = 'block';
+  document.getElementById('dropZone').style.display = 'none';
+  document.getElementById('currentImageNote').style.display = editingId ? 'none' : 'none';
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').style.borderColor = '';
+  const dt = e.dataTransfer;
+  if (dt.files.length) {
+    const inp = document.getElementById('bannerFile');
+    // Transfer files to the file input (workaround)
+    const file = dt.files[0];
+    const prev = document.getElementById('bannerPreview');
+    if (file.size > 5*1024*1024) {
+      Swal.fire({title:'File too large',text:'Max 5MB.',icon:'warning',confirmButtonColor:'#c9a84c'});
+      return;
+    }
+    prev.src = URL.createObjectURL(file); prev.style.display = 'block';
+    document.getElementById('dropZone').style.display = 'none';
+    // Store file reference for upload
+    window._dropFile = file;
+  }
+}
+
+// ── Save (Add / Edit) ─────────────────────────────────────────────
+async function saveBanner() {
+  const title = document.getElementById('mTitle').value.trim();
+  if (!title) return Swal.fire({title:'Title required',icon:'warning',confirmButtonColor:'#c9a84c'});
+
+  const fileInp = document.getElementById('bannerFile');
+  const file    = fileInp.files[0] || window._dropFile || null;
+
+  if (!editingId && !file) return Swal.fire({title:'Image required',text:'Please upload a banner image.',icon:'warning',confirmButtonColor:'#c9a84c'});
+
+  const btn = document.getElementById('modalSaveBtn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'; btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append('title',    title);
+  fd.append('subtitle', document.getElementById('mSubtitle').value.trim());
+  fd.append('btnText',  document.getElementById('mBtnText').value.trim() || 'Shop Now');
+  fd.append('btnLink',  document.getElementById('mBtnLink').value.trim() || '/viewallproducts');
+  fd.append('order',    document.getElementById('mOrder').value || '0');
+  if (file) fd.append('image', file);
+
+  try {
+    const url    = editingId ? `/admin/banners/${editingId}` : '/admin/banners';
+    const method = editingId ? 'PUT' : 'POST';
+    const res    = await fetch(url, { method, body: fd });
+    const data   = await res.json();
+    if (res.ok && data.success) {
+      window._dropFile = null;
+      closeModal();
+      await Swal.fire({title: editingId ? 'Updated!' : 'Banner Added!',icon:'success',timer:1500,showConfirmButton:false,confirmButtonColor:'#c9a84c'});
+      loadBanners();
+    } else {
+      Swal.fire({title:'Error',text:data.error||'Failed to save.',icon:'error',confirmButtonColor:'#c9a84c'});
+    }
+  } catch(e) {
+    Swal.fire({title:'Error',text:'Something went wrong.',icon:'error',confirmButtonColor:'#c9a84c'});
+  } finally {
+    btn.innerHTML = '<i class="fas fa-save"></i> Save Banner'; btn.disabled = false;
+  }
+}
+
+// ── Toggle active ─────────────────────────────────────────────────
+async function toggleBanner(id, isActive) {
+  try {
+    await fetch(`/admin/banners/${id}/toggle`, { method: 'PATCH' });
+    loadBanners();
+  } catch(e) {
+    Swal.fire({title:'Error',text:'Could not update status.',icon:'error',confirmButtonColor:'#c9a84c'});
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────────
+async function deleteBanner(id, title) {
+  const result = await Swal.fire({
+    title: 'Delete Banner?',
+    text: `"${title}" will be removed permanently.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+  });
+  if (!result.isConfirmed) return;
+  try {
+    await fetch(`/admin/banners/${id}`, { method: 'DELETE' });
+    await Swal.fire({title:'Deleted!',icon:'success',timer:1200,showConfirmButton:false});
+    loadBanners();
+  } catch(e) {
+    Swal.fire({title:'Error',text:'Delete failed.',icon:'error',confirmButtonColor:'#c9a84c'});
+  }
+}
+
+// Edit drop-zone click to select new image
+document.getElementById('bannerPreview').addEventListener('click', () => {
+  document.getElementById('bannerFile').click();
+});
+
+loadBanners();
+</script>
+</body>
+</html>

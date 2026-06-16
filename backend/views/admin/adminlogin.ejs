@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>Admin Login — ManMode</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body style="background:#0f172a;">
+<div class="adm-login-page">
+  <!-- Left panel -->
+  <div class="adm-login-left">
+    <div class="adm-login-left-content">
+      <div class="adm-login-logo-big">ManMode</div>
+      <h1 class="adm-login-left-title">Admin Control Center</h1>
+      <p class="adm-login-left-sub">Manage your store, products, orders, and customers from one powerful dashboard.</p>
+      <div class="adm-login-features">
+        <div class="adm-login-feature"><i class="fas fa-chart-line"></i>Real-time sales analytics</div>
+        <div class="adm-login-feature"><i class="fas fa-box-open"></i>Product & inventory management</div>
+        <div class="adm-login-feature"><i class="fas fa-shopping-cart"></i>Order tracking & processing</div>
+        <div class="adm-login-feature"><i class="fas fa-users"></i>Customer management</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="adm-login-right">
+    <div class="adm-login-card">
+      <span class="adm-login-card-logo">ManMode</span>
+      <h1 class="adm-login-title">Welcome back</h1>
+      <p class="adm-login-sub">Sign in to your admin account</p>
+
+      <form id="adminLoginForm" class="adm-login-form">
+        <div>
+          <label class="adm-login-label">Email Address</label>
+          <input type="email" class="adm-login-input" id="email" placeholder="admin@manmode.com" required autocomplete="email">
+        </div>
+        <div>
+          <label class="adm-login-label">Password</label>
+          <div class="adm-login-input-wrap">
+            <input type="password" class="adm-login-input" id="password" placeholder="Your password" required autocomplete="current-password">
+            <button type="button" class="adm-login-eye" id="eyeBtn"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="adm-login-submit" id="loginBtn">
+          <i class="fas fa-sign-in-alt"></i> Sign In to Admin
+        </button>
+      </form>
+
+      <div class="adm-back-link">
+        <a href="/userhome"><i class="fas fa-arrow-left"></i> Back to store</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('eyeBtn').onclick = function() {
+  const f = document.getElementById('password');
+  const show = f.type === 'password'; f.type = show ? 'text' : 'password';
+  this.innerHTML = show ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+};
+
+document.getElementById('adminLoginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn   = document.getElementById('loginBtn');
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('password').value;
+  if (!email || !pass) return Swal.fire({ title:'Error', text:'All fields required.', icon:'error', background:'#1e293b', color:'#fff', confirmButtonColor:'#c9a84c' });
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…'; btn.disabled = true;
+  try {
+    const res  = await fetch('/admin/adminlogin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password:pass}) });
+    const data = await res.json();
+    if (res.ok) { window.location.href = data.redirectUrl || '/admin/admindashboard'; }
+    else { Swal.fire({ title:'Access Denied', text: data.error || data.message || 'Invalid credentials.', icon:'error', background:'#1e293b', color:'#fff', confirmButtonColor:'#c9a84c' }); btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In to Admin'; btn.disabled=false; }
+  } catch { Swal.fire({ title:'Error', text:'Something went wrong.', icon:'error', background:'#1e293b', color:'#fff', confirmButtonColor:'#c9a84c' }); btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Sign In to Admin'; btn.disabled=false; }
+});
+</script>
+</body>
+</html>

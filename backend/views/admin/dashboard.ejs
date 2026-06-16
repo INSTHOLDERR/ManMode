@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/images/logo.ico" type="image/x-icon">
+  <title>Dashboard — ManMode Admin</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<%- include('./commonpages/sidebar') %>
+
+<div class="adm-main">
+  <header class="adm-topbar">
+    <button class="adm-ham" id="admHamBtn"><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span><span class="adm-ham-bar"></span></button>
+    <div>
+      <div class="adm-topbar-title">Dashboard</div>
+      <div class="adm-topbar-sub">Welcome back, Admin 👋</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;margin-left:auto;">
+      <span id="todayDate" style="font-size:.8125rem;color:var(--adm-ink-3);"></span>
+    </div>
+  </header>
+
+  <div class="adm-content">
+    <!-- Stats -->
+    <div class="adm-stats" id="statsGrid">
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:#fef9e7;color:var(--adm-accent);"><i class="fas fa-rupee-sign"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Total Revenue</div><div class="adm-stat-value" id="statRevenue">₹0</div></div></div>
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-blue-pale);color:var(--adm-blue);"><i class="fas fa-shopping-bag"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Total Orders</div><div class="adm-stat-value" id="statOrders">0</div></div></div>
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-green-pale);color:var(--adm-green);"><i class="fas fa-users"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Customers</div><div class="adm-stat-value" id="statUsers">0</div></div></div>
+      <div class="adm-stat"><div class="adm-stat-icon" style="background:var(--adm-orange-pale);color:var(--adm-orange);"><i class="fas fa-box-open"></i></div><div class="adm-stat-body"><div class="adm-stat-label">Products</div><div class="adm-stat-value" id="statProducts">0</div></div></div>
+    </div>
+
+    <!-- Sales report -->
+    <div class="adm-card" style="margin-bottom:1.5rem;">
+      <div class="adm-card-header">
+        <span class="adm-card-title"><i class="fas fa-file-alt"></i> Sales Report</span>
+        <div style="display:flex;align-items:center;gap:.625rem;flex-wrap:wrap;">
+          <select id="report-type" class="adm-select" style="max-width:160px;">
+            <option value="">Report Type</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          <div id="custom-date-range" style="display:none;display:flex;gap:.5rem;">
+            <input type="date" id="start-date" class="adm-input" style="max-width:160px;">
+            <input type="date" id="end-date"   class="adm-input" style="max-width:160px;">
+          </div>
+          <select id="report-format" class="adm-select" style="max-width:120px;">
+            <option value="excel">Excel</option>
+            <option value="pdf">PDF</option>
+          </select>
+          <button class="adm-btn adm-btn-primary" id="generateReportBtn"><i class="fas fa-download"></i> Generate</button>
+        </div>
+      </div>
+      <div id="report-table-container" style="padding:0 1rem 1rem;"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="adm-charts-grid">
+      <div class="adm-chart-card">
+        <div class="adm-chart-title"><i class="fas fa-chart-line" style="color:var(--adm-accent);margin-right:.375rem;"></i>Sales Overview</div>
+        <div class="adm-chart-wrap"><canvas id="salesChart"></canvas></div>
+      </div>
+      <div class="adm-chart-card">
+        <div class="adm-chart-title"><i class="fas fa-star" style="color:var(--adm-blue);margin-right:.375rem;"></i>Top Products</div>
+        <div class="adm-chart-wrap"><canvas id="topProductsChart"></canvas></div>
+      </div>
+      <div class="adm-chart-card">
+        <div class="adm-chart-title"><i class="fas fa-list" style="color:var(--adm-green);margin-right:.375rem;"></i>Top Categories</div>
+        <div class="adm-chart-wrap"><canvas id="topCategoriesChart"></canvas></div>
+      </div>
+      <div class="adm-chart-card">
+        <div class="adm-chart-title"><i class="fas fa-tag" style="color:var(--adm-orange);margin-right:.375rem;"></i>Top Brands</div>
+        <div class="adm-chart-wrap"><canvas id="topBrandsChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// Load stats
+async function loadStats() {
+  try {
+    const [ordersRes, usersRes, productsRes] = await Promise.all([
+      fetch('/admin/getallorders'), fetch('/admin/getallusers'), fetch('/admin/getallproducts')
+    ]);
+    const [od, ud, pd] = await Promise.all([ordersRes.json(), usersRes.json(), productsRes.json()]);
+    const orders = od.orders || od.data || [];
+    const users  = ud.users  || ud.data || [];
+    const prods  = pd.products || pd.data || [];
+    const revenue = orders.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+(o.totalAmount||o.totalPrice||0),0);
+    document.getElementById('statRevenue').textContent  = '₹'+revenue.toLocaleString('en-IN');
+    document.getElementById('statOrders').textContent   = orders.length;
+    document.getElementById('statUsers').textContent    = users.length;
+    document.getElementById('statProducts').textContent = prods.length;
+  } catch(e){ console.error(e); }
+}
+loadStats();
+
+// Chart defaults
+Chart.defaults.font.family = "'Inter',system-ui,sans-serif";
+Chart.defaults.color       = '#64748b';
+
+const chartColors = {
+  gold:   { bg:'rgba(201,168,76,.15)',  border:'rgba(201,168,76,1)' },
+  blue:   { bg:'rgba(37,99,235,.15)',   border:'rgba(37,99,235,1)'  },
+  green:  { bg:'rgba(22,163,74,.15)',   border:'rgba(22,163,74,1)'  },
+  orange: { bg:'rgba(234,88,12,.15)',   border:'rgba(234,88,12,1)'  },
+};
+
+function makeChart(id, type, labels, data, color, label) {
+  return new Chart(document.getElementById(id).getContext('2d'), {
+    type, data:{
+      labels,
+      datasets:[{ label, data,
+        backgroundColor: type==='line' ? color.bg  : [color.bg, chartColors.blue.bg, chartColors.green.bg, chartColors.orange.bg, 'rgba(139,92,246,.15)'],
+        borderColor:     type==='line' ? color.border : [color.border, chartColors.blue.border, chartColors.green.border, chartColors.orange.border, 'rgba(139,92,246,1)'],
+        borderWidth:2, tension:.4, fill:type==='line',
+        borderRadius: type!=='line' ? 6 : 0,
+      }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, tooltip:{ mode:'index', intersect:false } }, scales: type==='line'?{ y:{ grid:{ color:'rgba(0,0,0,.04)' }, beginAtZero:true }, x:{ grid:{display:false} } }:{} }
+  });
+}
+
+async function loadCharts() {
+  try {
+    const res = await fetch('/admin/getChartData');
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    makeChart('salesChart',        'line',  d.salesLabels||[],    d.salesData||[],    chartColors.gold,   'Revenue (₹)');
+    makeChart('topProductsChart',  'bar',   d.productLabels||[],  d.productData||[],  chartColors.blue,   'Orders');
+    makeChart('topCategoriesChart','doughnut',d.catLabels||[],    d.catData||[],      chartColors.green,  'Sales');
+    makeChart('topBrandsChart',    'bar',   d.brandLabels||[],    d.brandData||[],    chartColors.orange, 'Revenue');
+  } catch {
+    ['salesChart','topProductsChart','topCategoriesChart','topBrandsChart'].forEach(id => {
+      const ctx = document.getElementById(id)?.getContext('2d');
+      if (ctx) makeChart(id, id==='topCategoriesChart'?'doughnut':'bar', ['No data'], [0], chartColors.gold, '');
+    });
+  }
+}
+loadCharts();
+
+// Report
+document.getElementById('report-type').onchange = function() {
+  document.getElementById('custom-date-range').style.display = this.value==='custom'?'flex':'none';
+};
+document.getElementById('generateReportBtn').onclick = async () => {
+  const type   = document.getElementById('report-type').value;
+  const format = document.getElementById('report-format').value;
+  const start  = document.getElementById('start-date').value;
+  const end    = document.getElementById('end-date').value;
+  if (!type) return Swal.fire({ title:'Select report type', icon:'warning', confirmButtonColor:'#c9a84c' });
+  let url = `/admin/generateReport?type=${type}&format=${format}`;
+  if (type==='custom') url += `&startDate=${start}&endDate=${end}`;
+  window.location.href = url;
+};
+</script>
+</body>
+</html>

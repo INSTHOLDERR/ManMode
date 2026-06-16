@@ -1,0 +1,39 @@
+<header>
+    <div class="alert-box"></div>
+
+    <div class="tools">
+        <div class="logo-bar">
+            <div class="logo">ManMode</div>
+            <div class="search-bar">
+                <input type="text" placeholder="Enter your product name...">
+                <button><i class="search-icon">🔍</i></button>
+            </div>
+            <div class="icons">
+                <% if (session.user) { %>
+                    <div class="icon user-icon">👤</div>
+                    <div class="icon wishlist-icon">
+                        ❤️
+                        <span class="badge">0</span>
+                    </div>
+                    <div class="icon cart-icon">
+                        🛒
+                        <span class="badge">0</span>
+                    </div>
+                    <a class="user-logout" href="/logout">Logout</a>
+                <% } else { %>
+                    <a class="user-logout" href="/register">Register</a>
+                    <a class="user-logout" href="/login">Login</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="navigation">
+    <ul>
+        <li><a href="/userhome">Home</a></li>
+        <li><a href="#">Categories</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Contact Us</a></li>
+    </ul>
+</nav>

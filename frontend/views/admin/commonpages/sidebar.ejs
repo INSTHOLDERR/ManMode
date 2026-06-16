@@ -1,0 +1,88 @@
+<!-- Mobile overlay -->
+<div class="adm-overlay" id="admOverlay"></div>
+
+<aside class="adm-sidebar" id="admSidebar">
+  <div class="adm-sidebar-logo">
+    <div class="adm-sidebar-logo-icon">✍️</div>
+    <div>
+      <div class="adm-sidebar-logo-text">ManMode</div>
+      <div class="adm-sidebar-logo-badge">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="adm-sidebar-nav">
+    <p class="adm-nav-section-title">Overview</p>
+    <a href="/admin/admindashboard" class="adm-nav-link" data-page="admindashboard">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </a>
+
+    <p class="adm-nav-section-title">Management</p>
+    <a href="/admin/adminusers"      class="adm-nav-link" data-page="adminusers">
+      <i class="fas fa-users"></i> Users
+    </a>
+    <a href="/admin/adminbrands"     class="adm-nav-link" data-page="adminbrands">
+      <i class="fas fa-tag"></i> Brands
+    </a>
+    <a href="/admin/admincategories" class="adm-nav-link" data-page="admincategories">
+      <i class="fas fa-list-ul"></i> Categories
+    </a>
+    <a href="/admin/adminproducts"   class="adm-nav-link" data-page="adminproducts">
+      <i class="fas fa-box-open"></i> Products
+    </a>
+    <a href="/admin/adminorders"     class="adm-nav-link" data-page="adminorders">
+      <i class="fas fa-shopping-cart"></i> Orders
+    </a>
+    <a href="/admin/adminbanners"    class="adm-nav-link" data-page="adminbanners">
+      <i class="fas fa-image"></i> Banners
+    </a>
+
+    <p class="adm-nav-section-title">Marketing</p>
+    <a href="/admin/admincoupon" class="adm-nav-link" data-page="admincoupon">
+      <i class="fas fa-ticket-alt"></i> Coupons
+    </a>
+    <a href="/admin/adminoffers" class="adm-nav-link" data-page="adminoffers">
+      <i class="fas fa-percent"></i> Offers
+    </a>
+  </nav>
+
+  <div class="adm-sidebar-footer">
+    <a href="/userhome" class="adm-nav-link" style="margin-bottom:.5rem;">
+      <i class="fas fa-store"></i> View Store
+    </a>
+    <form action="/admin/adminlogout" method="POST" id="adminLogoutForm" style="margin:0;">
+      <button type="submit" class="adm-logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </form>
+  </div>
+</aside>
+
+<script>
+// Mark active link by matching current URL path
+(function() {
+  const path = window.location.pathname;
+  document.querySelectorAll('.adm-nav-link[data-page]').forEach(link => {
+    const page = link.getAttribute('data-page');
+    if (path.includes(page)) {
+      link.classList.add('active');
+    }
+  });
+})();
+
+// Mobile sidebar toggle
+const admHamBtn  = document.getElementById('admHamBtn');
+const admSidebar = document.getElementById('admSidebar');
+const admOverlay = document.getElementById('admOverlay');
+if (admHamBtn) {
+  admHamBtn.addEventListener('click', () => {
+    admSidebar.classList.toggle('open');
+    admOverlay.classList.toggle('open');
+  });
+}
+if (admOverlay) {
+  admOverlay.addEventListener('click', () => {
+    admSidebar.classList.remove('open');
+    admOverlay.classList.remove('open');
+  });
+}
+</script>
